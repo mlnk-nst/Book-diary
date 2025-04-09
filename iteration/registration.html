@@ -1,0 +1,35 @@
+<div class="modal-login-wrapper">
+    <div class="login-container">
+        <span class="close-modal">×</span>
+        <h2 class="h">Реєстрація</h2>
+        <hr class="custom-line">
+        <form class="form1" action="server/registration.php" method="POST" id="registerForm" novalidate>
+
+            <label for="regName" class="p">Ім'я</label>
+            <input class="input" type="name" id="regName" name="name" autocomplete="name" required minlength="2"
+                maxlength="50" pattern="[A-Za-zА-Яа-яЁёҐґІіЇїЄє'\- ]+">
+            <div class="error-message" id="nameError"></div>
+
+            <label for="regEmail" class="p">Пошта</label>
+            <input class="input" type="email" id="regEmail" name="email" autocomplete="username" required>
+            <div class="error-message" id="emailError"></div>
+
+            <label for="regPassword" class="p">Пароль</label>
+            <input class="input" type="password" id="regPassword" name="password" autocomplete="new-password"
+                minlength="8" pattern="(?=.*\d)(?=.*[a-zA-Z]).{8,}" " required>
+            <div class=" error-message" id="passwordError">
+    </div>
+
+    <label for="confirmPassword" class="p">Підтвердьте пароль</label>
+    <input class="input" type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password"
+        required>
+    <div class="error-message" id="confirmPasswordError"></div>
+
+    <button class="log" type="submit">Зареєструватися</button>
+    </form>
+    <hr class="custom-line">
+    <p class="p">Ви вже маєте акаунт? <a href="#" onclick="loadModal('login')" class="a"> Увійти</a></p>
+</div>
+</div>
+
+</html>

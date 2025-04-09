@@ -1,0 +1,443 @@
+* {
+
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/*шрифти*/
+.font_text {
+    font-family: "Manrope", sans-serif;
+    font-size: 24px;
+    color: #000;
+}
+
+.font_h {
+    font-family: "Jost", sans-serif;
+    color: #000;
+    font-size: 36px;
+    font-weight: 600;
+    margin-top: 41px;
+}
+
+/* верхнє меню*/
+.header {
+    background: #FFFFFF;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #000000;
+    position: fixed;
+    width: 100%;
+    z-index: 10;
+    height: 119px;
+}
+
+.profile {
+    width: 60px;
+    height: 57px;
+    margin-top: 31px;
+    margin-left: 122px;
+    margin-bottom: 31px;
+    margin-right: 57px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.header_left {
+    display: inline-block;
+    list-style: none;
+    padding-top: 26px;
+    padding-left: 46px;
+    padding-bottom: 26px;
+    width: 185px;
+}
+
+.header_right li a {
+    text-decoration: none;
+    color: #113E4F;
+    padding: 10px 20px;
+    font-family: "Manrope", sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    margin-right: 53px;
+}
+
+.header_right li {
+    padding-top: 43px;
+    padding-bottom: 43px;
+}
+
+.header_right {
+    display: flex;
+    list-style: none;
+}
+
+/*книги*/
+.book_dynamic {
+    img {
+        width: 195px;
+        height: 300px;
+        margin-bottom: 0;
+    }
+
+    h4 {
+        font-family: "Jost", sans-serif;
+        color: #000;
+        font-size: 24px;
+        font-weight: 600;
+        margin-top: 18px;
+        margin-bottom: 0;
+    }
+
+    p {
+        margin-top: 7px;
+        font-size: 14px;
+        font-family: "Inter", sans-serif;
+    }
+}
+
+.my-book {
+    background: #ECEDEE;
+    border-radius: 20px;
+    width: 425px;
+    height: 280px;
+    display: flex;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    flex-shrink: 0;
+
+    img {
+        width: 145px;
+        margin: 29px 36px;
+    }
+
+    .book-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    h4 {
+        font-family: "Jost", sans-serif;
+        color: #000;
+        font-size: 24px;
+        font-weight: 600;
+        margin-top: 29px;
+        margin-bottom: 0;
+    }
+
+    .author {
+        margin-top: 16px;
+        font-size: 18px;
+        font-family: "Inter", sans-serif;
+    }
+
+    .data {
+        margin-top: 10px;
+        margin-bottom: 28px;
+    }
+
+    .rating {
+        background: #FFFFFF;
+        border-radius: 20px;
+        width: 81px;
+        height: 40px;
+        right: 0;
+        display: flex;
+        gap: 5px;
+        padding: 5px;
+        align-items: center;
+
+        img {
+            width: 28px;
+            height: 28px;
+            margin: 0;
+        }
+
+        .r {
+            margin: 0;
+            font-size: 20px;
+            font-family: "Inter", sans-serif;
+        }
+    }
+
+    .right-side {
+        margin-top: 70px;
+        margin-bottom: 28px;
+        padding-right: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+        width: 100%;
+    }
+
+    .left-side {
+        display: flex;
+        flex-direction: column;
+        width: 100%
+    }
+}
+
+/* футер*/
+footer {
+    background: #CBE3F4;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    z-index: 10;
+    position: relative;
+
+    p {
+        font-size: 16px;
+        font-family: "Manrope", sans-serif;
+    }
+}
+
+/*кнопки*/
+.btn-blue {
+    border-radius: 25px;
+    background: #96D3FF;
+    font-family: "Jost", sans-serif;
+    color: #000;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 10px 30px;
+    border: none;
+    align-self: center;
+}
+
+.btn-blue:hover {
+    background-color: #6fc2fd;
+    transition: 0.7s;
+    cursor: pointer;
+}
+
+.btn-red {
+    border-radius: 25px;
+    background: #F8AAAA;
+    font-family: "Jost", sans-serif;
+    color: #000;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 10px 30px;
+    border: none;
+}
+
+.btn-red:hover {
+    background-color: #f97d7d;
+    transition: 0.7s;
+    cursor: pointer;
+}
+
+/*модальні вікна*/
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/*вхід та реєстрація*/
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #000 !important;
+    -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+@keyframes modalFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes overlayFadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.modal-login-wrapper {
+    font-family: "Manrope", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #113E4F;
+    top: 0;
+    left: 0;
+    width: 70%;
+    height: 70%;
+    animation: overlayFadeIn 0.3s ease-out forwards;
+}
+
+.modal-login-wrapper .close-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.login-container {
+    background-color: #CBE3F4;
+    border-radius: 20px;
+    animation: modalFadeIn 0.3s ease-out;
+    width: clamp(300px, 80%, 600px);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 40px;
+    position: relative;
+    animation: modalFadeIn 0.3s ease-out 0.1s both;
+}
+
+.form1 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.h {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    margin-bottom: clamp(10px, 2vw, 20px);
+}
+
+.custom-line {
+    height: 1px;
+    background-color: #1A5267;
+    border: none;
+    margin: 10px auto;
+    width: 80%;
+}
+
+.input {
+    width: 100%;
+    padding: clamp(8px, 2vw, 12px);
+    margin-bottom: clamp(10px, 2vw, 20px);
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+    border-radius: 15px;
+    border: none;
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 500px;
+}
+
+.input:focus {
+    outline: none;
+    border: 2px solid #1A5267;
+}
+
+.log {
+    background-color: #1A5267;
+    color: #fff;
+
+    align-self: center;
+    border: none;
+    padding: clamp(8px, 2vw, 12px) clamp(20px, 4vw, 30px);
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    border-radius: clamp(10px, 3vw, 20px);
+    margin: clamp(15px, 3vw, 25px) auto;
+    display: block;
+}
+
+.log:hover {
+    background-color: #1593b6;
+    transition: 0.7s;
+    cursor: pointer;
+}
+
+.a {
+    text-decoration: none;
+    color: #1A5267;
+    text-decoration: underline;
+}
+
+.a:hover {
+    color: #1593b6;
+    transition: 0.7s;
+    cursor: pointer;
+}
+
+.p {
+    text-align: center;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    margin: clamp(8px, 1.5vw, 16px) 0;
+}
+
+.modal-login-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.8rem;
+    line-height: 40px;
+    text-align: center;
+    background: #1A5267;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+}
+
+.close-modal:hover {
+    background: #f97d7d;
+    transform: rotate(90deg);
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}

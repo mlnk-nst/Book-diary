@@ -1,0 +1,189 @@
+/*Контейнери з інфою */
+.container1 {
+    background: #CBE3F4;
+    margin-top: 185px;
+    padding: 20px;
+    margin-left: 81px;
+    margin-right: 81px;
+    border-radius: 20px;
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.3);
+    padding-right: 30px;
+
+    h2 {
+        margin-top: 46px;
+        font-size: 64px;
+        color: #000;
+        font-family: var(--font3);
+        margin-left: 45px;
+        margin-bottom: 0px;
+        padding-right: 400px;
+    }
+
+    p {
+        font-size: 24px;
+        color: #000;
+        font-family: "Manrope", sans-serif;
+        margin-left: 40px;
+        padding-right: 400px;
+    }
+
+    .font1 {
+        font-weight: 600;
+        margin-top: 23px;
+    }
+
+    .f {
+        margin-bottom: 54px;
+    }
+
+}
+
+.book {
+    width: 836px;
+    height: 557px;
+    overflow: hidden;
+    transform: rotate(-15deg);
+    z-index: 2;
+    position: absolute;
+    top: 80px;
+    right: -200px;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    width: calc(100% - 162px);
+    margin: 65px 81px;
+    box-sizing: border-box;
+    gap: 88px;
+    flex-wrap: wrap;
+}
+
+.container2,
+.container3 {
+    width: calc(50% - 44px);
+    padding: 20px;
+    background: #CBE3F4;
+    border-radius: 20px;
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.3);
+    gap: 20px;
+    display: flex;
+
+    .text-content {
+        flex: 1;
+        max-width: 100%;
+    }
+}
+
+.container3 {
+    margin-left: 0px;
+}
+
+.container2 img,
+.container3 img {
+    width: 236px;
+    height: 221px;
+    margin: 35px;
+}
+
+.container2 h3,
+.container3 h3 {
+    font-family: "Jost", sans-serif;
+    font-weight: 600;
+    font-size: 40px;
+
+}
+
+/* адаптація*/
+@media (max-width: 1200px) {
+    .container1 h2 {
+        padding-right: 200px;
+    }
+
+    .container1 p {
+        padding-right: 400px;
+    }
+
+    .book {
+        right: -300px;
+    }
+
+    .container2,
+    .container3 {
+        width: 100%;
+    }
+
+
+    .container2 h3,
+    .container3 h3 {
+        font-size: 36px;
+    }
+
+    .container2 p,
+    .container3 p {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 992px) {
+    .container1 h2 {
+        padding-right: 200px;
+    }
+
+    .container1 p {
+        padding-right: 200px;
+    }
+
+    .book {
+        right: -400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container1 h2 {
+        padding-right: 20px;
+    }
+
+    .header_right li a {
+        margin-right: 0px;
+    }
+
+    .container1 p {
+        padding-right: 20px;
+    }
+
+    .book {
+        display: none;
+    }
+
+    .wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .container2,
+    .container3 {
+        width: 100%;
+    }
+
+    .container2 img,
+    .container3 img {
+        width: 150px;
+        height: 150px;
+        margin-bottom: 20px;
+    }
+
+    .container2 h3,
+    .container3 h3 {
+        font-size: 32px;
+    }
+
+    .container2 p,
+    .container3 p {
+        font-size: 18px;
+    }
+}
+
+section {
+    margin: 0 81px;
+}

@@ -1,0 +1,40 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    gap: 30px;
+}
+
+.container-left {
+    width: 30%;
+    margin-top: 119px;
+    margin-left: 66px;
+    position: sticky;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.book-cover {
+    margin-top: 57px;
+    width: 390px;
+}
+
+.admin-controls {
+    margin-top: 15px;
+    /* display: none;*/
+}
+
+.info {
+    margin-top: 150px;
+    width: 70%;
+    font-family: "Manrope", sans-serif;
+    font-size: 24px;
+    color: #000;
+}

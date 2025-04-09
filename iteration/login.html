@@ -1,0 +1,20 @@
+<div class="modal-login-wrapper">
+    <div class="login-container">
+        <span class="close-modal">×</span>
+        <h2 class="h">Вхід на сайт</h2>
+        <hr class="custom-line">
+        <form class="form1" action="/login" method="POST">
+            <p class="p">Пошта</p>
+            <input class="input" type="email" name="email" autocomplete="username" required>
+            <p class="p">Пароль</p>
+            <input class="input" type="password" name="password" autocomplete="current-password" required>
+            <button class="log" type="submit">Увійти</button>
+        </form>
+        <hr class="custom-line">
+        <p class="p">Ви ще не маєте акаунта? <a href="#" onclick="loadModal('registration')"
+                class="a">Зареєструватися</a>
+        </p>
+    </div>
+</div>
+
+</html>
