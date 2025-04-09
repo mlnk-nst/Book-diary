@@ -1,15 +1,19 @@
 **Веб-додаток «Читацький щоденник» **
 
 Інструменти реалізації: HTML, CSS, JavaScript ,PHP, MySQL
+
 Основна мета: допомогти користувачам вести облік прочитаних книг, записувати враження, аналізувати прочитане та ставити нові читацькі цілі. Додаток надає можливість структурувати нотатки, оцінювати книги, добавляти книги  для майбутнього читання та ділитися враженнями з іншими користувачами.
 Функціональні вимоги
+
 Загальний функціонал для всіх ролей:
 1.	Пошук та сортування книг за назвою, автором, жанром, датою додавання.
 2.	Перегляд бібліотеки книг 
 3.	Перегляд детальної інформації про книгу: назва, автор, опис, жанр, рік видання, рейтинг, відгуки.
+   
 Для гостей:
 1.	Перегляд бібліотеки книг.
 2.	Перегляд детальної інформації про книгу (без можливості залишати відгуки або оцінки).
+
  Для зареєстрованого користувача:
 1.	Редагування особистої інформації (ім’я, пароль, пошта)
 2.	Перегляд статистики: кількість прочитаних книг, загальний час читання, рівень
@@ -23,15 +27,18 @@
 10.	Історія читання:  відображення час читання та скільки сторінок 
 11.	Нарахування очок за прочитані книги.
 12.	Підвищення рівня після досягнення певної кількості очок.
+    
 Для адміністратора:
 1. Додавання нової книги (назва, автор, опис, жанр, рік видання, обкладинка).
 2. Редагування інформації про книгу.
 3. Видалення книги з бібліотеки.
+
 Нефункціональні вимоги
 1.  Інтуїтивно зрозумілий інтерфейс для всіх ролей.
 2. Адаптивний дизайн для різних пристроїв.
 3. Швидкий пошук та сортування книг (час відгуку не більше 2 секунд).
 4. Захист персональних даних користувачів.
+   
 База даних
 Основні сутності:
 1.	Користувачі (Users) — зберігає інформацію про користувачів.
@@ -42,57 +49,62 @@
 6.	Відгуки (Reviews) — зберігає публічні відгуки користувачів про книги.
 7.	Читання (ReadingSessions) — зберігає інформацію про час читання та кількість сторінок.
 8.	Рівень (UserProgress) — зберігає інформацію про рівень користувача, бали досвіду та інші показники прогресу.
+   
 Таблиці та їх поля:
-1.	Users
+1.	Users {
 user_id		INT (Primary Key)
 username		VARCHAR(50)
 email	   	VARCHAR(100)
 password		VARCHAR(150)
 role		ENUM(user, admin)
-created_at	 	DATETIME
+created_at	 	DATETIME }
 
-2.	Books
+2.	Books {
 book_id	INT (Primary Key)
 name	VARCHAR(255)
-genre_id	INT  (foreign key)
 author_id	  INT  (foreign key)
 annotation	TEXT
 published_year	YEAR
 pages   INT
-cover_image  BLOB
-3.	Authors
+cover_image  BLOB }
+3.	Authors {
 author_id	INT (Primary Key)
-name	VARCHAR(100)
+name	VARCHAR(100) }
 bio	TEXT
-4.	Genres
+4.	Genres {
 genre_id	INT (Primary Key)
 name	VARCHAR(50)
-parent_genre_id	INT
-5.	Diary
+parent_genre_id	INT }
+5. book_genre {
+    book_id INT NOT NULL,FOREIGN KEY (book_id)
+    genre_id INT NOT NULL, FOREIGN KEY (genre_id)
+    PRIMARY KEY (book_id, genre_id)}
+    
+6.	Diary{
 entry_id	INT (Primary Key)
 user_id		INT (foreign key)
 book_id	INT (foreign key)
 review_id  	INT (foreign key)
 status	ENUM(read, reading, saved, abandoned)
 rating	 INT
-created_at	DATETIME
-6.	Reviews
+created_at	DATETIME}
+7.	Reviews {
 review_id   INT (Primary Key)
 user_id		INT  (foreign key)
 book_id	INT  (foreign key)
 review_text	TEXT
-created_at	DATETIME
-7. ReadingSessions
+created_at	DATETIME}
+8. ReadingSessions {
 session_id	INT (Primary Key)
 user_id	INT (foreign key)
 book_id	INT (foreign key)
 start_time	    DATETIME
 end_time	    DATETIME
-pages_read	INT
-8. UserProgress
+pages_read	INT }
+9. UserProgress {
 user_id	INT (foreign key)
 experience_points	INT
-level	 INT
+level	 INT}
 
 Рівні для користувача: 
 Арифметична прогресія передбачає фіксоване збільшення кількості очок для кожного наступного рівня. Тобто кожна рівня буде + 50 балів. 
