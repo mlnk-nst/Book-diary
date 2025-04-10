@@ -82,26 +82,73 @@ body {
 
 /*книги*/
 .book_dynamic {
-    img {
+    max-width: 195px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background-color: white;
+    position: relative;
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .img-book {
         width: 195px;
         height: 300px;
         margin-bottom: 0;
+        object-fit: cover;
     }
 
-    h4 {
+    .h4 {
         font-family: "Jost", sans-serif;
         color: #000;
-        font-size: 24px;
+        font-size: 16px;
         font-weight: 600;
         margin-top: 18px;
         margin-bottom: 0;
+        width: 195px;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        position: relative;
+        transition: all 0.3s ease;
     }
 
-    p {
+    .p {
         margin-top: 7px;
         font-size: 14px;
         font-family: "Inter", sans-serif;
+        width: 195px;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        position: relative;
+        transition: all 0.3s ease;
     }
+}
+
+.book_dynamic:hover {
+    z-index: 2;
+    position: relative;
+}
+
+.book_dynamic:hover .h4,
+.book_dynamic:hover .p {
+    white-space: normal;
+    text-overflow: unset;
+    overflow: visible;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transition: all 0.8s ease;
 }
 
 .my-book {

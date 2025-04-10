@@ -51,7 +51,7 @@
     <section class="book-list" id="book-list">
         
     </section>
-
+    <section class="pagination" id="pagination"></section>
     <div class="footer">
         <?php include 'iteration/footer.php'; ?>
     </div>

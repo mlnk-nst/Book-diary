@@ -1,6 +1,5 @@
 <?php
 //меню в каталозі 
-
 include 'server/database.php'; 
 $stmt = $pdo->prepare("SELECT genre_id, name FROM genre WHERE parent_genre_id IS NULL");
 $stmt->execute();

@@ -108,4 +108,43 @@ h4 {
 .book-list {
     margin-left: 380px;
     margin-right: 68px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 20px;
+}
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.pagination a {
+    text-decoration: none;
+    color: black;
+    margin: 0 5px;
+    font-size: 16px;
+    font-family: "Manrope", sans-serif;
+}
+
+.pagination .pagination-arrow {
+    cursor: pointer;
+}
+
+.pagination .pagination-arrow[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination .pagination-link.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.pagination img {
+    width: 24px;
+    height: 24px;
 }
