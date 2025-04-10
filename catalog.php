@@ -17,7 +17,7 @@
     <div class="header">
         <?php include 'iteration/header.php'; ?>
     </div>
-
+    <?php include 'server/catalog/get_genres.php'; ?>
     <section class="menu-category">
         <h3>Категорії книг</h3>
  
@@ -48,22 +48,8 @@
         </button>
     </div>
 
-    <section class="book-list">
-        <div class="book_dynamic">
-            <img src="picture/приклад_обкладинки.jpg" alt="book" href="">
-            <h4>Назва книги</h4>
-            <p>автор</p>
-        </div> 
-        <div class="book_dynamic">
-            <img src="picture/приклад_обкладинки.jpg" alt="book" href="">
-            <h4>Назва книги</h4>
-            <p>автор</p>
-        </div>
-         <div class="book_dynamic">
-            <img src="picture/приклад_обкладинки.jpg" alt="book" href="">
-            <h4>Назва книги</h4>
-            <p>автор</p>
-         </div>
+    <section class="book-list" id="book-list">
+        
     </section>
 
     <div class="footer">
