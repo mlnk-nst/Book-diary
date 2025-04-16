@@ -84,7 +84,7 @@ body {
 .book_dynamic {
     max-width: 195px;
     flex-shrink: 0;
-    display: flex;
+    display: grid;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;

@@ -1,5 +1,5 @@
 <?php 
-include 'database.php';
+include __DIR__ . '/../database.php';
 header('Content-Type: application/json');
 // добавлення піджанру в базу
 // сторінка для добавлення книг

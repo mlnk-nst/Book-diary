@@ -14,7 +14,7 @@ $messageType = isset($_GET['message_type']) ? $_GET['message_type'] : '';?>
     <link rel="website icon" type="png" href="picture/logo-s.png">
     <link rel="stylesheet" href="style/style.css">
     <link rel="stylesheet" href="style/plus-book.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
 
 </head>
 <body>
@@ -33,34 +33,21 @@ $messageType = isset($_GET['message_type']) ? $_GET['message_type'] : '';?>
         <input class="input" type="text" id="title" name="title" required>
         
         <label class="label" for="author">Автор:</label>
-        <input class="input" type="text" id="author" name="author" required  pattern="^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s.]+$">
+        <select class="input"  id="author" name="author[]"required multiple pattern="^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s.]+$"> </select>
+
 
         <label class="label" for="year">Рік видання:</label>
         <input class="input" type="number" id="year" name="year" required>
+
         <label class="label" for="genre">Жанр:</label>
-        <select class="input" id="genre" name="genre" required>
-        <option value="">Оберіть жанр</option>   
-        <?php
-            $stmt = $pdo->query("SELECT * FROM genre WHERE parent_genre_id IS NULL");
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                echo "<option value='{$row['genre_id']}'>{$row['name']}</option>";}
-            ?>
-        </select>
-
-        <div class="checkbox-container">
-        <input type="checkbox" id="new_genre_checkbox" name="new_genre_checkbox" >
-        <label for="new_genre_checkbox">Немає потрібного жанру?</label>
-    </div>
-
-    <div id="new_genre_container" style="visibility:hidden;">
-        <label class="label" for="new_genre">Додати новий жанр:</label>
-        <input class="input i1" type="text" id="new_genre" name="new_genre" placeholder="Введіть новий жанр" >
-    </div>
+             <select class="input" id="genre" name="genre" required>
+            <option value="">Оберіть жанр</option>
+        </select>   
 </div>
 
 <div class="right-column">
     <label class="label" for="subgenre">Піджанр:</label>
-    <select class="input" id="subgenre" name="subgenre[]" multiple>
+    <select class="input" id="subgenre" name="subgenre[]" multiple required pattern="^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s.]+$">
         <option value="">Оберіть піджанр</option> </select>
 
         <label class="label" for="pages">Кількість сторінок:</label>
@@ -78,8 +65,7 @@ $messageType = isset($_GET['message_type']) ? $_GET['message_type'] : '';?>
        </div>
         <button type="submit" class="btn-blue btn">Додати книгу</button>
     </form></div>
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script src="js/plusBook.js"> </script>
 </body>
 </html>
