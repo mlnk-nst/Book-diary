@@ -4,6 +4,50 @@ document.getElementById('image').addEventListener('change', function () {
 });
 
 
+document.getElementById('genre').addEventListener('change', function () {
+    var genreId = this.value;
+    var subgenreSelect = document.getElementById('subgenre');
+    var newSubgenreContainer = document.getElementById('new_subgenre_container');
+
+    subgenreSelect.innerHTML = '<option value="">Оберіть піджанр</option>';
+    subgenreSelect.disabled = true;
+
+    if (genreId) {
+        fetch('server/add-book/get-genre.php?genre_id=' + genreId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    data.forEach(subgenre => {
+                        var option = document.createElement('option');
+                        option.value = subgenre.genre_id;
+                        option.textContent = subgenre.name;
+                        subgenreSelect.appendChild(option);
+                    });
+                    subgenreSelect.disabled = false;
+                } else {
+                    subgenreSelect.disabled = true;
+                }
+            })
+            .catch(error => console.error('Помилка при отриманні піджанрів:', error));
+    }
+});
+
+
+// Обробник для нового жанру
+document.getElementById('new_genre_checkbox').addEventListener('change', function () {
+    var newGenreContainer = document.getElementById('new_genre_container');
+
+
+    if (this.checked) {
+        newGenreContainer.style.visibility = 'visible';
+        document.getElementById('genre').disabled = true;
+        document.getElementById('genre').value = '';
+    } else {
+        newGenreContainer.style.visibility = 'hidden';
+        document.getElementById('genre').disabled = false;
+    }
+});
+
 // вікно з помилками
 document.addEventListener('DOMContentLoaded', function () {
     var message = document.querySelector('.message');
@@ -17,38 +61,56 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 3500);
     }
 });
-
-
-document.addEventListener('DOMContentLoaded', function () {
-    new TomSelect('#author', {
-        plugins: ['remove_button'], // Додає кнопки для видалення вибраних елементів
-        persist: false, // Не зберігати вибране між сеансами
-        create: true,   // Дозволити створювати нові теги
-        maxItems: null, // Не обмежувати кількість вибраних елементів
-        valueField: 'id', // Поле з значенням (для форми)
-        labelField: 'name', // Поле, яке відображається
-        searchField: 'name', // Поле для пошуку
-        load: function (query, callback) {
-            // AJAX-запит для пошуку авторів
-            fetch(`../server/add-book/get-author?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(json => {
-                    callback(json.data); // Масив авторів у форматі [{id: 1, name: "Шевченко"}, ...]
-                })
-                .catch(() => callback([]));
-        },
-        onCreate: function (item, callback) {
-            // Відправка нового автора на сервер
-            fetch('/api/authors', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: item })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    callback({ id: data.id, name: data.name }); // Повертаємо новий елемент з ID з БД
-                })
-                .catch(() => callback(null));
+/*піджанр*/
+$(document).ready(function () {
+    $('#subgenre').select2({
+        tags: true,
+        placeholder: "Оберіть піджанри або введіть новий",
+        ajax: {
+            url: 'server/add-book/get-genre.php',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                var genre_id = $('#genre').val();
+                console.log('genre_id:', $('#genre').val());
+                return {
+                    genre_id: genre_id,
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                var results = [];
+                if (data && Array.isArray(data)) {
+                    results = data.map(function (item) {
+                        return { id: item.genre_id, text: item.name };
+                    });
+                } else if (data && data.error) {
+                    results.push({ id: 0, text: 'Помилка: ' + data.error });
+                }
+                return {
+                    results: results
+                };
+            },
+            cache: true
         }
     });
+});
+
+$('#subgenre').on('select2:select', function (e) {
+    var selected = e.params.data;
+    if (selected.id === '') {
+        $.ajax({
+            url: 'server/add-book/add_subgenre.php',
+            method: 'POST',
+            data: {
+                subgenre_name: newSubgenre,
+                parent_genre_id: $('#genre').val()
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#subgenre').append(new Option(newSubgenre, newSubgenre, true, true)).trigger('change');
+                }
+            }
+        });
+    }
 });
