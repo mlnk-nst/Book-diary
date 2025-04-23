@@ -1,4 +1,4 @@
-function toggleDropdown(category) {
+function toggleDropdown(category) {  // меню анімація
     const dropdown = document.getElementById(`${category}-dropdown`);
     const arrow = document.getElementById(`${category}-arrow`);
 
@@ -14,9 +14,12 @@ function toggleDropdown(category) {
 document.addEventListener('DOMContentLoaded', function () {
     const booksContainer = document.getElementById('book-list');
     const paginationContainer = document.getElementById('pagination');
+    const searchButton = document.getElementById('search-button');
+    const searchInput = document.getElementById('search-input');
+    const infoContainer = document.getElementById('info');
 
     let currentPage = 1;
-
+    // вивід книг
     function loadBooks(page) {
         fetch(`server/catalog/get_books.php?page=${page}`)
             .then(response => response.json())
@@ -48,7 +51,51 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `).join('');
     }
+    // пошук
+    function Search() {
+        const query = searchInput.value.trim();
+        if (!query) {
+            loadBooks(1);
+            infoContainer.innerHTML = '';
+            return;
+        }
 
+        fetch(`server/catalog/search-book.php?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                booksContainer.innerHTML = '';
+                if (data.success && data.data.length > 0) {
+                    renderBooks(data.data);
+                    paginationContainer.innerHTML = '';
+                    infoContainer.innerHTML = `Пошук по запиту: <strong>«${query}»</strong>`;
+                } else {
+                    paginationContainer.innerHTML = '';
+                    infoContainer.innerHTML = `Книги не знайдено`;
+                }
+                searchInput.value = '';
+            })
+            .catch(error => {
+                console.error('Помилка при пошуку:', error);
+                infoContainer.innerHTML = `Помилка пошуку`;
+                searchInput.value = '';
+            });
+    }
+
+    searchButton.addEventListener('click', Search);
+
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            Search();
+        }
+    });
+    searchInput.addEventListener('input', () => {
+        if (searchInput.value.trim() === '') {
+            loadBooks(1);
+            infoContainer.innerHTML = '';
+        }
+    });
+    // пагінація
     function renderPagination(totalPages, currentPage) {
         let paginationHTML = '';
 

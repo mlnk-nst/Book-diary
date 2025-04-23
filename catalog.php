@@ -46,6 +46,7 @@
                     <img src="picture/search.png" alt="Пошук" class="search-icon" />
                 </button>
             </div>
+            <div id="info" class="txt" > </div>
             <section class="book-list" id="book-list"></section>
             <section class="pagination" id="pagination"></section>
         </div>  
