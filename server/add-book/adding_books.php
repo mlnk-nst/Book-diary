@@ -1,5 +1,5 @@
 <?php
-include 'database.php'; 
+include __DIR__ . '/../database.php';
 
 $message = ''; 
 $messageType = '';
@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $annotation = trim($_POST['annotation']);
 
     /*жанр*/
+    
         if (isset($_POST['new_genre_checkbox']) && !empty($_POST['new_genre'])) {
             $new_genre = trim($_POST['new_genre']);
             $stmt = $pdo->prepare("SELECT genre_id FROM genre WHERE name = ?");
@@ -60,15 +61,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         
         /*автор*/
-        $author_name = $_POST['author'];
-        $stmt = $pdo->prepare("SELECT author_id FROM author WHERE name = ?");
-        $stmt->execute([$author_name]);
-        $author = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($author) { $author_id = $author['author_id'];  }
-            else {  $stmt = $pdo->prepare("INSERT INTO author (name) VALUES (?)");
+        $author_names = explode(',', $_POST['author']);
+        $author_ids = [];
+    
+        foreach ($author_names as $author_name) {
+            $author_name = trim($author_name);
+            if (!empty($author_name)) {
+                $stmt = $pdo->prepare("SELECT author_id FROM author WHERE name = ?");
+                $stmt->execute([$author_name]);
+                $author = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+                if ($author) {
+                    $author_ids[] = $author['author_id'];
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO author (name) VALUES (?)");
                     $stmt->execute([$author_name]);
-                    $author_id = $pdo->lastInsertId();}
+                    $author_ids[] = $pdo->lastInsertId();
+                }
+            }
+        }
+    
+        if (empty($author_ids)) {
+            $message = "Будь ласка, введіть хоча б одного автора.";
+            $messageType = 'error';
+            header("Location:/курсовий 3 курс/plusBook.php?message=" . urlencode($message) . "&message_type=" . urlencode($messageType));
+            exit;
+        }   
         $currentYear = date("Y");
         if (isset($_POST['year'])) {
             $year = (int)$_POST['year'];
@@ -78,32 +96,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                exit; }}
 
 /*перевірка в базі*/
-$stmt = $pdo->prepare("SELECT b.book_id FROM books b WHERE b.name = ? AND b.author_id = ? AND b.published_year = ?");
-$stmt->execute([$title, $author_id, $year]);
+$stmt = $pdo->prepare("SELECT b.book_id FROM books b 
+JOIN book_authors ba ON b.book_id = ba.book_id
+WHERE b.name = ? AND ba.author_id IN (" . implode(',', $author_ids) . ") 
+AND b.published_year = ?");
+$stmt->execute([$title, $year]);
 $existingBook = $stmt->fetch(PDO::FETCH_ASSOC);
 
-var_dump($existingBook);
- if ($existingBook) {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM book_genre WHERE book_id = ? AND genre_id IN (" .implode(',', array_map('intval', $subgenre_ids)) . ")");
-    $stmt->execute([$existingBook['book_id']]);
-    $commonGenresCount = $stmt->fetchColumn();
+if ($existingBook) {
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM book_genre WHERE book_id = ? AND genre_id IN (" . implode(',', array_map('intval', $subgenre_ids)) . ")");
+$stmt->execute([$existingBook['book_id']]);
+$commonGenresCount = $stmt->fetchColumn();
 
-    if ($commonGenresCount > 0) {
-     $message = "Книга з такою назвою, автором та іншими параметрами вже існує в базі.";
-     $messageType = 'error';
-     header("Location:/курсовий 3 курс/plusBook.php?message=" . urlencode($message) . "&message_type=" . urlencode($messageType));
- exit;
- }}
+if ($commonGenresCount > 0) {
+$message = "Книга з такою назвою, авторами та іншими параметрами вже існує в базі.";
+$messageType = 'error';
+header("Location:/курсовий 3 курс/plusBook.php?message=" . urlencode($message) . "&message_type=" . urlencode($messageType));
+exit;
+}
+}
+
     try {
-        $stmt = $pdo->prepare("INSERT INTO books (name, author_id, published_year, pages, annotation, cover_image) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$title, $author_id, $year, $pages, $annotation, $imageData]);
+        $stmt = $pdo->prepare("INSERT INTO books (name,  published_year, pages, annotation, cover_image) VALUES (?,  ?, ?, ?, ?)");
+        $stmt->execute([$title, $year, $pages, $annotation, $imageData]);
         $book_id = $pdo->lastInsertId();
+
+        foreach ($author_ids as $author_id) {
+            $stmt = $pdo->prepare("INSERT INTO book_authors (book_id, author_id) VALUES (?, ?)");
+            $stmt->execute([$book_id, $author_id]);
+        }
 
         $genre_ids = array_merge([$genre_id], $subgenre_ids);
         foreach ($genre_ids as $g_id) {
             $stmt = $pdo->prepare("INSERT INTO book_genre (book_id, genre_id) VALUES (?, ?)");
             $stmt->execute([$book_id, $g_id]);
         }
+        
         $message =  "Книга успішно додана!";
         $messageType = 'success';
     } 

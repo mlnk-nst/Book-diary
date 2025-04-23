@@ -27,13 +27,13 @@ $messageType = isset($_GET['message_type']) ? $_GET['message_type'] : '';?>
 
     <div class="form-b">
     <h2>Додати нову книгу</h2> 
-    <form  class="form-book" action="server/adding_books.php" method="post" enctype="multipart/form-data">
+    <form  class="form-book" action="server/add-book/adding_books.php" method="post" enctype="multipart/form-data">
     <div class="left-column">
         <label class="label" for="title">Назва книги:</label>
         <input class="input" type="text" id="title" name="title" required>
         
         <label class="label" for="author">Автор:</label>
-        <input class="input" type="text" id="author" name="author" required  pattern="^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s.]+$">
+        <input class="input" type="text" id="author" name="author" required  pattern="^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s.,-']+$">
 
         <label class="label" for="year">Рік видання:</label>
         <input class="input" type="number" id="year" name="year" required>

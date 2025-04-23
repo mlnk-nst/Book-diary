@@ -13,9 +13,11 @@ document.getElementById('genre').addEventListener('change', function () {
     subgenreSelect.disabled = true;
 
     if (genreId) {
+        console.log("Обраний жанр ID:", genreId);
         fetch('server/add-book/get-genre.php?genre_id=' + genreId)
             .then(response => response.json())
             .then(data => {
+                console.log("Отримані піджанри:", data);
                 if (data.length > 0) {
                     data.forEach(subgenre => {
                         var option = document.createElement('option');
@@ -24,11 +26,10 @@ document.getElementById('genre').addEventListener('change', function () {
                         subgenreSelect.appendChild(option);
                     });
                     subgenreSelect.disabled = false;
-                } else {
-                    subgenreSelect.disabled = true;
                 }
             })
             .catch(error => console.error('Помилка при отриманні піджанрів:', error));
+        subgenreSelect.disabled = false;
     }
 });
 
@@ -61,6 +62,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 3500);
     }
 });
+
+document.getElementById('new_genre').addEventListener('blur', function () {
+    let genreName = this.value.trim();
+
+    if (genreName !== '') {
+        fetch('server/add-book/add-genre.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'genre_name=' + encodeURIComponent(genreName)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Жанр додано з ID:', data.genre_id);
+
+                    document.getElementById('genre').setAttribute('data-new-genre-id', data.genre_id);
+
+                    $('#subgenre').select2().val(null).trigger('change');
+                } else {
+                    console.error('Помилка при додаванні жанру:', data.error);
+                }
+            })
+            .catch(error => console.error('Помилка AJAX:', error));
+    }
+});
 /*піджанр*/
 $(document).ready(function () {
     $('#subgenre').select2({
@@ -71,7 +97,8 @@ $(document).ready(function () {
             dataType: 'json',
             delay: 250,
             data: function (params) {
-                var genre_id = $('#genre').val();
+                var genre_id = $('#genre').is(':disabled')
+                    ? $('#genre').data('new-genre-id') : $('#genre').val();
                 console.log('genre_id:', $('#genre').val());
                 return {
                     genre_id: genre_id,
@@ -98,18 +125,28 @@ $(document).ready(function () {
 
 $('#subgenre').on('select2:select', function (e) {
     var selected = e.params.data;
-    if (selected.id === '') {
+    if (selected.id === selected.text) {
+        var parent_genre_id = $('#genre').is(':disabled')
+            ? $('#genre').data('new-genre-id') : $('#genre').val();
+
         $.ajax({
             url: 'server/add-book/add_subgenre.php',
             method: 'POST',
+            dataType: 'json',
             data: {
-                subgenre_name: newSubgenre,
-                parent_genre_id: $('#genre').val()
+                subgenre_name: selected.text,
+                parent_genre_id: parent_genre_id
             },
             success: function (response) {
-                if (response.success) {
-                    $('#subgenre').append(new Option(newSubgenre, newSubgenre, true, true)).trigger('change');
+                if (response.success && response.genre_id) {
+                    var newOption = new Option(response.name, response.genre_id, true, true);
+                    $('#subgenre').append(newOption).trigger('change');
+                } else {
+                    console.error('Помилка при додаванні піджанру:', response.message);
                 }
+            },
+            error: function (xhr) {
+                console.error('Ajax помилка:', xhr.responseText);
             }
         });
     }

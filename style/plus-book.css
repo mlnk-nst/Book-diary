@@ -80,6 +80,14 @@ body::before {
     text-overflow: ellipsis;
 }
 
+.file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 250px;
+
+}
+
 .annotation {
     padding: clamp(8px, 2vw, 12px);
     margin-bottom: clamp(10px, 2vw, 20px);
