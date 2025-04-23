@@ -29,13 +29,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         paginationContainer.innerHTML = '';
                     }
                 } else {
-                    booksContainer.innerHTML = `<div class="no-books"><p>Книги не знайдено</p></div>`;
+                    booksContainer.innerHTML = `<div class="txt"><p>Книги не знайдено</p></div>`;
                     paginationContainer.innerHTML = '';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                booksContainer.innerHTML = `<div class="error"><p>Помилка завантаження даних</p></div>`;
+                booksContainer.innerHTML = `<div class="txt"><p>Помилка завантаження даних</p></div>`;
             });
     }
 
@@ -57,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <img src="picture/arrow-l.png" alt="Previous">
             </a>
         `;
-
         for (let i = 1; i <= totalPages; i++) {
             paginationHTML += `
                 <a href="#" class="pagination-link" data-page="${i}" ${i === currentPage ? 'class="active"' : ''}>
@@ -65,8 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 </a>
             `;
         }
-
-
         paginationHTML += `
             <a href="#" class="pagination-arrow" id="next-page" ${currentPage === totalPages ? 'disabled' : ''}>
                 <img src="picture/arrow-r.png" alt="Next">
@@ -99,3 +96,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     loadBooks(currentPage);
 });
+

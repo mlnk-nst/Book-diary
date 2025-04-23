@@ -89,7 +89,7 @@ body {
     justify-content: flex-start;
     align-items: flex-start;
     text-align: left;
-    overflow: hidden;
+    overflow: visible;
     transition: all 0.3s ease;
     background-color: white;
     position: relative;
@@ -115,9 +115,8 @@ body {
         margin-bottom: 0;
         width: 195px;
         text-align: left;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        word-wrap: break-word;
         position: relative;
         transition: all 0.3s ease;
     }
@@ -129,26 +128,9 @@ body {
         width: 195px;
         text-align: left;
         overflow: hidden;
-        text-overflow: ellipsis;
         position: relative;
         transition: all 0.3s ease;
     }
-}
-
-.book_dynamic:hover {
-    z-index: 2;
-    position: relative;
-}
-
-.book_dynamic:hover .h4,
-.book_dynamic:hover .p {
-    white-space: normal;
-    text-overflow: unset;
-    overflow: visible;
-    top: 0;
-    left: 0;
-    width: 100%;
-    transition: all 0.8s ease;
 }
 
 .my-book {

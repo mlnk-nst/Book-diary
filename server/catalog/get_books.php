@@ -11,13 +11,15 @@ try {
     SELECT 
         b.book_id,
         b.name as book_title,
-        a.name as author_name,
+        GROUP_CONCAT(a.name SEPARATOR ', ') as author_name,
         b.cover_image
     FROM books b
-    JOIN author a ON b.author_id = a.author_id
+    JOIN book_authors ba ON b.book_id = ba.book_id
+    JOIN author a ON ba.author_id = a.author_id
+    GROUP BY b.book_id
     ORDER BY b.name
     LIMIT :offset, :limit
-    ");
+");
     $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
     $stmt->bindParam(':limit', $booksPerPage, PDO::PARAM_INT);
     $stmt->execute();

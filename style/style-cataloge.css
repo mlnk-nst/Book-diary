@@ -109,7 +109,7 @@ h4 {
     margin-left: 380px;
     margin-right: 68px;
     display: grid;
-    grid-template-columns: repeat(5, 1fr) !important;
+    grid-template-columns: repeat(6, 1fr) !important;
     gap: 20px;
 
 }
