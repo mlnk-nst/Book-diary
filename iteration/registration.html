@@ -3,7 +3,7 @@
         <span class="close-modal">×</span>
         <h2 class="h">Реєстрація</h2>
         <hr class="custom-line">
-        <form class="form1" action="server/registration.php" method="POST" id="registerForm" novalidate>
+        <form class="form1" action="server/login/registration.php" method="POST" id="registerForm" novalidate>
 
             <label for="regName" class="p">Ім'я</label>
             <input class="input" type="name" id="regName" name="name" autocomplete="name" required minlength="2"
@@ -20,7 +20,7 @@
             <div class=" error-message" id="passwordError">
     </div>
 
-    <label for="confirmPassword" class="p">Підтвердьте пароль</label>
+    <label for="confirmPassword" class="p">Підтвердіть пароль</label>
     <input class="input" type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password"
         required>
     <div class="error-message" id="confirmPasswordError"></div>

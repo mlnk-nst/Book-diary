@@ -1,14 +1,14 @@
-function toggleDropdown(category) {  // меню анімація
+// меню 
+function toggleDropdown(category) {
     const dropdown = document.getElementById(`${category}-dropdown`);
     const arrow = document.getElementById(`${category}-arrow`);
+    dropdown.style.display = "block";
+    arrow.classList.add("rotate");
 
-    if (dropdown.style.display === "block") {
+    dropdown.addEventListener("mouseleave", function () {
         dropdown.style.display = "none";
         arrow.classList.remove("rotate");
-    } else {
-        dropdown.style.display = "block";
-        arrow.classList.add("rotate");
-    }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -95,6 +95,34 @@ document.addEventListener('DOMContentLoaded', function () {
             infoContainer.innerHTML = '';
         }
     });
+
+    function loadBooksByGenre(genreId, genreName) {
+        console.log(`Genre ID: ${genreId}, Genre Name: ${genreName}`);
+        infoContainer.innerHTML = `Вибраний жанр: <strong>${genreName}</strong>`;
+        fetch(`server/catalog/get-book-genre.php?genre_id=${genreId}`)
+            .then(response => response.text())
+            .then(text => {
+                console.log(text);  // Виводимо відповідь у консоль
+                try {
+                    const data = JSON.parse(text);
+                    console.log(data);
+                    if (data.length > 0) {
+                        renderBooks(data);
+                        paginationContainer.innerHTML = '';
+                    } else {
+                        booksContainer.innerHTML = `<div class="txt"><p>Немає книг у цьому жанрі.</p></div>`;
+                        paginationContainer.innerHTML = '';
+                    }
+                } catch (error) {
+                    console.error("Помилка при парсингу JSON:", error);
+                    booksContainer.innerHTML = `<div class="txt"><p>Помилка завантаження даних.</p></div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Помилка завантаження книг за жанром:', error);
+                booksContainer.innerHTML = `<div class="txt"><p>Помилка завантаження книг</p></div>`;
+            });
+    }
     // пагінація
     function renderPagination(totalPages, currentPage) {
         let paginationHTML = '';
@@ -142,5 +170,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     loadBooks(currentPage);
+    window.loadBooksByGenre = loadBooksByGenre;
 });
 

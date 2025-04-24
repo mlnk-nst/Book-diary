@@ -19,26 +19,30 @@
         <div class="content">
             <?php include 'server/catalog/get_genres.php'; ?>
             <section class="menu-category">
-                <h3>Категорії книг</h3>
-                <?php foreach ($categories as $category): ?>
-                    <div class="category">
-                        <div class="category-header" onclick="toggleDropdown('<?php echo $category['genre_id']; ?>')">
-                            <h4><?php echo $category['name']; ?></h4>
-                            <img src="picture/arrow.png" alt="стрілка вниз" class="arrow-icon" id="<?php echo $category['genre_id']; ?>-arrow">
-                        </div>
+    <h3>Категорії книг</h3>
+    <?php foreach ($categories as $category): ?>
+        <div class="category">
+            <div class="category-header" onmouseenter="toggleDropdown('<?php echo $category['genre_id']; ?>')">
+                <h4 onclick="loadBooksByGenre('<?php echo $category['genre_id']; ?>', '<?php echo $category['name']; ?>')">
+                    <?php echo $category['name']; ?>
+                </h4>
+                <img src="picture/arrow.png" alt="стрілка вниз" class="arrow-icon" id="<?php echo $category['genre_id']; ?>-arrow">
+            </div>
 
-                        <?php
-                        $subgenres = getSubgenres($category['genre_id']);
-                        if ($subgenres): ?>
-                            <div class="subcategories" id="<?php echo $category['genre_id']; ?>-dropdown">
-                                <?php foreach ($subgenres as $subgenre): ?>
-                                    <p class="subcategory"><?php echo $subgenre['name']; ?></p>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
-            </section>
+            <?php
+            $subgenres = getSubgenres($category['genre_id']);
+            if ($subgenres): ?>
+                <div class="subcategories" id="<?php echo $category['genre_id']; ?>-dropdown">
+                    <?php foreach ($subgenres as $subgenre): ?>
+                        <p class="subcategory" onclick="loadBooksByGenre('<?php echo $subgenre['genre_id']; ?>', '<?php echo $subgenre['name']; ?>')">
+                            <?php echo $subgenre['name']; ?>
+                        </p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+</section>
 
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Пошук книг..." />
