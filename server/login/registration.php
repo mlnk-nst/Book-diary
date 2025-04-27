@@ -1,26 +1,27 @@
 <?php
+header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('HTTP/1.1 403 Forbidden');
-    echo json_encode(['success' => false, 'message' => 'Доступ запрещен']);
+    echo json_encode(['success' => false, 'message' => 'Доступ заборонено']);
     exit;
 }
 
 include __DIR__ . '/../database.php';
-header('Content-Type: application/json');
 
-
-    $name = trim($_POST['name'] ?? '');
+    $username = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirmPassword'] ?? '';
     $errors = [];
 
-    if (empty($name)) {
+    if (empty($username)) {
         $errors['name'] = "Введіть ім'я";
-    } elseif (strlen($name) < 2 || strlen($name) > 50) {
+    } elseif (strlen($username) < 2 || strlen($username) > 50) {
         $errors['name'] = "Ім'я має містити від 2 до 50 символів";
-    } elseif (!preg_match("/^[a-zA-ZА-Яа-яЁёҐґІіЇїЄє'\-\s]+$/u", $name)) {
+    } elseif (!preg_match("/^[a-zA-ZА-Яа-яЁёҐґІіЇїЄє'\-\s]+$/u", $username)) {
         $errors['name'] = "Допустимі лише літери, апостроф та дефіс";
     }
 
@@ -58,10 +59,14 @@ if (!empty($errors)) {
 }
 
 try {
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    $hashedPassword = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
     
-    $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-    $stmt->execute([$name, $email, $hashedPassword]);
+    if (strlen($hashedPassword) > 100) {
+        throw new Exception("Помилка: хеш пароля занадто довгий");
+    }
+    
+    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, created_at) VALUES (?, ?, ?, 'user', NOW())");
+    $stmt->execute([$username, $email, $hashedPassword]);
     
     echo json_encode([
         'success' => true,

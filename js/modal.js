@@ -104,7 +104,7 @@ function initRegistrationForm() {
             }
             const formData = new FormData(registerForm);
             console.log("Відправляємо запит на сервер...");
-            fetch('курсовий 3 курс/server/login/registration.php', {
+            fetch('server/login/registration.php', {
                 method: 'POST',
                 body: formData
             })
