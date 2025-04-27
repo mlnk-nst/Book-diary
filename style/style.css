@@ -376,7 +376,6 @@ footer {
 .input {
     width: 100%;
     padding: clamp(8px, 2vw, 12px);
-    margin-bottom: clamp(10px, 2vw, 20px);
     font-size: clamp(0.9rem, 3vw, 1.1rem);
     border-radius: 15px;
     border: none;
@@ -427,6 +426,10 @@ footer {
     margin: clamp(8px, 1.5vw, 16px) 0;
 }
 
+.password-hint {
+    margin-top: 5px;
+}
+
 .modal-login-wrapper {
     position: fixed;
     top: 0;
@@ -464,9 +467,32 @@ footer {
     transform: rotate(90deg);
 }
 
+
+/* Стили для спливаючого повідомлення */
+.success-message {
+    color: #8cfe90;
+    padding: 10px;
+    border-radius: 15px;
+    width: 500px;
+    text-align: center;
+    font-weight: bold;
+}
+
 .error-message {
-    color: #e74c3c;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    display: none;
+    color: #c6002c;
+    padding: 10px;
+    border-radius: 15px;
+    width: 500px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.error-list {
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+.error-input {
+    border-color: #f3a6a5 !important;
+    background-color: #fff5f5;
 }
