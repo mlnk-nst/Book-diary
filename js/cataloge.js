@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
         booksContainer.innerHTML = books.map(book => `
             <div class="book_dynamic">
                     <img class="img-book" src="${book.cover_image || 'picture/приклад_обкладинки.jpg'}" alt="${book.book_title}">
-                <h4 class="h4"><a href="book_details.php?id=${book.book_id}">${book.book_title}</a></h4>
+                <h4 class="h4"><a href=" book-info.php?id=${book.book_id}">${book.book_title}</a></h4>
                 <p class="p">${book.author_name}</p>
             </div>
         `).join('');

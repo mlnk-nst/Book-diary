@@ -18,7 +18,7 @@
     </div>
     <div class="wrapper">
         <div class="container-left">
-        <img src="picture/приклад_обкладинки.jpg" alt="Обкладинка книги" class="book-cover" id="bookCover">
+        <img src="" alt="Обкладинка книги" class="book-cover" id="bookCover">
         <button class="btn-blue" id="saveBookBtn">Зберегти</button>
         <div class="admin-controls" id="adminControls">
             <button class="btn-blue" id="editBookBtn">Редагувати книгу</button>
@@ -26,10 +26,11 @@
         </div>
     </div>
     <div class="info">
-    <h1 id="bookTitle">Назва книги</h1>
-        <p><strong>Автор:</strong> <span id="bookAuthor">Ім'я автора</span></p>
-        <p><strong>Рік випуску:</strong> <span id="bookYear">2023</span></p>
-        <p><strong>Кількість сторінок:</strong> <span id="bookPages">320</span></p>
+    <h1 id="bookTitle"></h1>
+        <p><strong>Автор:</strong> <span id="bookAuthor"></span></p>
+        <p><strong>Жанри:</strong> <span id="bookGenres"></span></p>
+        <p><strong>Рік випуску:</strong> <span id="bookYear"></span></p>
+        <p><strong>Кількість сторінок:</strong> <span id="bookPages"></span></p>
         
         <div class="book-status">
             <strong>Статус:</strong>
@@ -56,13 +57,21 @@
         </div>
         
         <h3>Анотація:</h3>
-        <p id="bookAnnotation">Тут буде анотація книги з бази даних...</p>
+        <p id="bookAnnotation"></p>
+
+    <section class="reviews">
+    <h3>Відгуки:</h3>
+    <div class="reviews-section" id="reviewsContainer">
+        <?php if (empty($reviews)): ?>
+            <p class="no-reviews">Відгуки на цю книгу відсутні</p>
+        <?php endif; ?>
+    </div>
+</section>
+    
     </div>
     </div>
     </div>
-    <div class="reviews-section"> 
-        
-    </div>
+    
     <div class=" footer">
             <?php include 'iteration/footer.php'; ?>
     </div>
