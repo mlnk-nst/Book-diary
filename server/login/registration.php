@@ -49,7 +49,7 @@ if ($password !== $confirmPassword) {
     $errors['confirmPassword'] = "Паролі не збігаються";
 }
 if (!empty($errors)) {
-    http_response_code(422); // Unprocessable Entity
+    http_response_code(422); 
     echo json_encode([
         'success' => false,
         'message' => 'Виправте помилки у формі',
@@ -64,10 +64,16 @@ try {
     if (strlen($hashedPassword) > 100) {
         throw new Exception("Помилка: хеш пароля занадто довгий");
     }
+    $pdo->beginTransaction();
     
     $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, created_at) VALUES (?, ?, ?, 'user', NOW())");
     $stmt->execute([$username, $email, $hashedPassword]);
-    
+    $userId = $pdo->lastInsertId(); 
+
+    $stmt = $pdo->prepare("INSERT INTO user_progress (user_id, experience_points, level) VALUES (?, 0, 1)");
+    $stmt->execute([$userId]);
+    $pdo->commit();
+
     echo json_encode([
         'success' => true,
         'message' => 'Реєстрація успішна!'
