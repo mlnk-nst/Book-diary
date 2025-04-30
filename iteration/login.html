@@ -3,7 +3,8 @@
         <span class="close-modal">×</span>
         <h2 class="h">Вхід на сайт</h2>
         <hr class="custom-line">
-        <form class="form1" action="/login" method="POST">
+        <div class="login-messages" aria-live="polite"> </div>
+        <form class="form1" action="server/login/log.php" method="POST" id="loginForm">
             <p class="p">Пошта</p>
             <input class="input" type="email" name="email" autocomplete="username" required>
             <p class="p">Пароль</p>

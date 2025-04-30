@@ -47,6 +47,9 @@
                 <img src="picture/star.png" alt="5 зірок" data-rating="5">
             </div>
         </div>
+        <h3>Анотація:</h3>
+        <p id="bookAnnotation"></p>
+
         
         <div class="review-section" id="reviewSection" style="display: none;">
             <button id="writeReviewBtn" class="btn-blue">Написати відгук</button>
@@ -56,9 +59,7 @@
             </div>
         </div>
         
-        <h3>Анотація:</h3>
-        <p id="bookAnnotation"></p>
-
+       
     <section class="reviews">
     <h3>Відгуки:</h3>
     <div class="reviews-section" id="reviewsContainer">

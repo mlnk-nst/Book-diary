@@ -1,5 +1,5 @@
 const PATHS = {
-    auth: 'server/check_auth.php',
+    auth: 'server/login/check_auth.php',
     modals: 'iteration/'
 };
 
@@ -34,6 +34,9 @@ async function loadModal(modalType) {
         if (modalType === 'registration') {
             initRegistrationForm();
         }
+        else if (modalType === 'login') {
+            initLoginForm();
+        }
 
         const closeBtn = container.querySelector('.close-modal');
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
@@ -47,10 +50,15 @@ async function loadModal(modalType) {
 // обробник кнопки профілю
 async function handleProfileButton() {
     try {
-        const isLoggedIn = await checkAuth();
-        await loadModal(isLoggedIn ? 'profile' : 'login');
+        const authData = await checkAuth();
+        let modalType = 'login';
+        if (authData.isLoggedIn) {
+            modalType = authData.userRole === 'admin' ? 'admin-profile' : 'user-profile';
+        }
+        await loadModal(modalType, authData);
     } catch (error) {
         console.error('Profile button error:', error);
+        showErrorToast('Не вдалося перевірити статус авторизації');
     }
 }
 
@@ -110,8 +118,7 @@ function initRegistrationForm() {
             })
 
                 .then(response => {
-                    console.log("Отримана відповідь:", response); // Логуємо об'єкт Response
-                    return response.json(); // Парсимо JSON і передаємо далі
+                    return response.json();
                 })
                 .then(data => {
                     if (data.success) {
@@ -152,6 +159,73 @@ function initRegistrationForm() {
                 .catch(error => {
                     if (registerMessages) {
                         registerMessages.innerHTML = `
+                        <div class="error-message">
+                            Помилка при відправці форми: ${error.message}
+                        </div>
+                    `;
+                    }
+                });
+        });
+    }
+}
+
+// обробка форми входу
+function initLoginForm() {
+    const loginFormForm = document.getElementById('loginForm');
+    const loginMessages = document.querySelector('.login-messages');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+            console.log("Форма відправлена!")
+            e.preventDefault();
+
+            if (loginMessages) {
+                loginMessages.innerHTML = '';
+            }
+
+            const formData = new FormData(loginForm);
+            console.log("Відправляємо запит на сервер...");
+            fetch('server/login/log.php', {
+                method: 'POST',
+                body: formData
+            })
+
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        if (loginMessages) {
+                            loginMessages.innerHTML = `
+                            <div class="success-message">
+                                ${data.message}
+                            </div>
+                        `;
+                        }
+
+                        setTimeout(() => {
+                            closeModal();
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        let errorHtml = `<div class="error-message">${data.message}</div>`;
+
+                        if (data.errors) {
+                            errorHtml += '<ul class="error-list">';
+                            for (const field in data.errors) {
+                                errorHtml += `<li>${data.errors[field]}</li>`;
+                            }
+                            errorHtml += '</ul>';
+                        }
+
+                        if (loginMessages) {
+                            loginMessages.innerHTML = errorHtml;
+                        }
+                    }
+                })
+                .catch(error => {
+                    if (loginMessages) {
+                        loginMessages.innerHTML = `
                         <div class="error-message">
                             Помилка при відправці форми: ${error.message}
                         </div>

@@ -1,9 +1,23 @@
+
 <?php
-session_start();
-$isLoggedIn = isset($_SESSION['user_id']);
-$lastLogin = isset($_SESSION['login_time']) ? date('Y-m-d H:i:s', $_SESSION['login_time']) : 'Невідомо';
-echo json_encode([
-    'isLoggedIn' => $isLoggedIn,
-    'lastLogin' => $lastLogin 
-]);
+header('Content-Type: application/json');
+
+$response = [
+    'isLoggedIn' => false,
+    'userRole' => 'guest',
+    'lastLogin' => null
+];
+
+// Перевіряємо, чи є кукі сесії перед її запуском
+if (isset($_COOKIE[session_name()])) {
+    session_start();
+    
+    if (isset($_SESSION['user_id'])) {
+        $response['isLoggedIn'] = true;
+        $response['userRole'] = $_SESSION['role'] ?? 'user';
+        $response['lastLogin'] = $_SESSION['login_time'] ?? null;
+    }
+}
+
+echo json_encode($response);
 ?>
