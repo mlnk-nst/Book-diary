@@ -8,8 +8,7 @@ async function checkAuth() {
     try {
         const response = await fetch(PATHS.auth);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        return data.isLoggedIn;
+        return await response.json();
     } catch (error) {
         console.error('Помилка перевірки авторизації:', error);
         return false;
@@ -51,10 +50,14 @@ async function loadModal(modalType) {
 async function handleProfileButton() {
     try {
         const authData = await checkAuth();
-        let modalType = 'login';
+
+        let modalType;
         if (authData.isLoggedIn) {
-            modalType = authData.userRole === 'admin' ? 'admin-profile' : 'user-profile';
+            modalType = 'profile';
+        } else {
+            modalType = 'login';
         }
+
         await loadModal(modalType, authData);
     } catch (error) {
         console.error('Profile button error:', error);

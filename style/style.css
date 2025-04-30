@@ -496,3 +496,60 @@ footer {
     border-color: #f3a6a5 !important;
     background-color: #fff5f5;
 }
+
+/*профіль*/
+.modal-content {
+    position: relative;
+    border-radius: 20px;
+    width: clamp(300px, 80%, 500px);
+    padding: 40px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.container-profile {
+    font-family: "Manrope", sans-serif;
+    display: flex;
+    flex-direction: column;
+    font-size: 24px;
+
+    .h {
+        margin: 0;
+        font-size: clamp(1.5rem, 5vw, 2rem);
+        color: #1A5267;
+        text-align: center;
+    }
+
+    .email {
+        text-align: center;
+        margin-bottom: 15px;
+        margin-top: 5px;
+    }
+
+    .txt-profile {
+        margin: 5px 0;
+        text-align: left;
+
+    }
+
+    .custom-line-p {
+        height: 1px;
+        background-color: #1A5267;
+        border: none;
+        margin: 10px auto;
+        width: 100%;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 15px 0;
+    }
+
+    .container-profile .close-modal:hover {
+        background: #f97d7d;
+        transform: rotate(90deg) scale(1.1);
+    }
+
+}

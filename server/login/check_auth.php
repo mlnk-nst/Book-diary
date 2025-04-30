@@ -8,7 +8,6 @@ $response = [
     'lastLogin' => null
 ];
 
-// Перевіряємо, чи є кукі сесії перед її запуском
 if (isset($_COOKIE[session_name()])) {
     session_start();
     
