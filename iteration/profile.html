@@ -2,19 +2,21 @@
     <div class="modal-content">
         <div class="container-profile">
             <span class="close-modal">×</span>
-            <h2 class="h">Ім'я</h2>
-            <p class="email">Пошта </p>
-            <p class="txt-profile">Рівень:</p>
-            <p class="txt-profile">Накопичено балів:</p>
+            <h2 class="h" id="profile-name">Ім'я</h2>
+            <p class="email" id="profile-email">Пошта </p>
+            <div class="user-info">
+                <p class="txt-profile" id="profile-level">Рівень:</p>
+                <p class="txt-profile" id="profile-points">Накопичено балів:</p>
+            </div>
+            <button class="btn-blue admin-only" id="add-book-btn" type="submit">Додати книгу</button>
             <hr class="custom-line-p">
             <p class="txt-profile">Редагування інформації</p>
             <div class="button-group">
-                <button class="btn-blue" type="submit">Змінити пошту </button>
-                <button class="btn-red" type="submit">Змінити пароль</button>
+                <button class="btn-blue" id="change-email-btn" type="submit">Змінити пошту </button>
+                <button class="btn-red" id="change-password-btn" type="submit">Змінити пароль</button>
             </div>
-
             <hr class="custom-line-p">
-            <button class="btn-red" type="submit"> Вийти з профіля</button>
+            <button class="btn-red" id="logout-btn" type="submit"> Вийти з профіля</button>
         </div>
     </div>
 </body>

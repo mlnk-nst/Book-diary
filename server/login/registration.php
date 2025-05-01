@@ -2,6 +2,7 @@
 header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('HTTP/1.1 403 Forbidden');
@@ -24,7 +25,12 @@ include __DIR__ . '/../database.php';
     } elseif (!preg_match("/^[a-zA-ZА-Яа-яЁёҐґІіЇїЄє'\-\s]+$/u", $username)) {
         $errors['name'] = "Допустимі лише літери, апостроф та дефіс";
     }
-
+    if (preg_match('/[<>{}\/\\\\]/', $username)) {
+        $errors['name'] = "Ім'я містить заборонені символи";
+    }
+    if (preg_match('/[<>{}]/', $email)) {
+        $errors['email'] = "Email містить заборонені символи";
+    }
     if (empty($email)) {
         $errors['email'] = "Введіть email";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

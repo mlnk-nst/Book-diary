@@ -551,5 +551,20 @@ footer {
         background: #f97d7d;
         transform: rotate(90deg) scale(1.1);
     }
+}
 
+.admin-only {
+    display: none;
+}
+
+.user-info {
+    display: block;
+}
+
+.container-profile.admin .admin-only {
+    display: block;
+}
+
+.container-profile.admin .user-info {
+    display: none;
 }

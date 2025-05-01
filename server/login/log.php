@@ -1,5 +1,14 @@
 <?php
-require_once __DIR__ . '/../../server/database.php';
+
+ini_set('session.gc_maxlifetime', 1209600);
+session_set_cookie_params([
+    'lifetime' => 1209600,
+    'path' => '/',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+session_start();
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -10,6 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ]);
     exit;
 } 
+require_once __DIR__ . '/../../server/database.php';
+
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
 $errors = [];
@@ -35,22 +46,14 @@ try {
     $stmt = $pdo->prepare("SELECT user_id, username, email, password, role FROM users WHERE email = :email");
     $stmt->execute(['email' => $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
     if ($user && password_verify($password, $user['password'])) {
-        ini_set('session.gc_maxlifetime', 1209600);
-        session_set_cookie_params([
-            'lifetime' => 1209600,
-            'path' => '/',
-            'secure' => true,
-            'httponly' => true,
-            'samesite' => 'Lax'
-        ]);
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['role'] = $user['role'];
+
         echo json_encode([
             'success' => true,
             'message' => 'Вхід успішний',
@@ -59,7 +62,8 @@ try {
                 'username' => $user['username'],
                 'email' => $user['email'],
                 'role' => $user['role']
-            ]
+            ],
+            'session_id' => session_id()
         ]);
     } else { echo json_encode([
         'success' => false,

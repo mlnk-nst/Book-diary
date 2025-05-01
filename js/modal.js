@@ -6,9 +6,15 @@ const PATHS = {
 // перевірка статусу  ( помилки)
 async function checkAuth() {
     try {
-        const response = await fetch(PATHS.auth);
+        const response = await fetch(PATHS.auth, {
+            credentials: 'include'
+        });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
+        const data = await response.json();
+        if (data.session_id) {
+            localStorage.setItem('last_session_id', data.session_id);
+        }
+        return data;
     } catch (error) {
         console.error('Помилка перевірки авторизації:', error);
         return false;
@@ -18,7 +24,7 @@ async function checkAuth() {
 
 
 //  завантаження модалки 
-async function loadModal(modalType) {
+async function loadModal(modalType, authData = null) {
     try {
         const container = document.getElementById('modal-container');
         if (!container) throw new Error('Modal container not found');
@@ -35,6 +41,10 @@ async function loadModal(modalType) {
         }
         else if (modalType === 'login') {
             initLoginForm();
+        }
+        else if (modalType === 'profile') {
+            if (!authData) authData = await checkAuth();
+            initProfileModal(authData);
         }
 
         const closeBtn = container.querySelector('.close-modal');
@@ -198,6 +208,9 @@ function initLoginForm() {
                 })
                 .then(data => {
                     if (data.success) {
+                        if (data.session_id) {
+                            localStorage.setItem('last_session_id', data.session_id);
+                        }
                         if (loginMessages) {
                             loginMessages.innerHTML = `
                             <div class="success-message">
@@ -236,5 +249,110 @@ function initLoginForm() {
                     }
                 });
         });
+    }
+}
+
+// вікно профіля
+async function initProfileModal(authData) {
+    try {
+        const profileContainer = document.querySelector('.container-profile');
+        if (!profileContainer) throw new Error('Profile container not found');
+
+        const userData = await fetchUserData(authData.userId);
+        if (userData) {
+            document.getElementById('profile-name').textContent = userData.username || 'Ім\'я не вказано';
+            document.getElementById('profile-email').textContent = userData.email || 'Пошта не вказана';
+            authData.user = {
+                name: userData.username,
+                email: userData.email,
+                role: userData.role
+            };
+        }
+
+        if (authData.userRole === 'user') {
+            await loadUserProgress(authData.userId);
+        }
+        const addBookBtn = document.getElementById('add-book-btn');
+        const userInfo = document.querySelector('.user-info');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        const isAdmin = authData.userRole === 'admin';
+
+        profileContainer.classList.remove('admin', 'user');
+        profileContainer.classList.add(isAdmin ? 'admin' : 'user');
+
+        // вийти з профіля
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    const response = await fetch('server/login/logout.php', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) throw new Error('Помилка виходу');
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        localStorage.clear();
+                        sessionStorage.clear();
+
+                        document.cookie.split(';').forEach(cookie => {
+                            const [name] = cookie.trim().split('=');
+                            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                        });
+                        closeModal();
+                        window.location.href = 'main.php';
+                    } else {
+                        showErrorToast(data.message || 'Помилка при виході');
+                    }
+                } catch (error) {
+                    console.error('Помилка виходу:', error);
+                    showErrorToast('Помилка при виході');
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error('Помилка ініціалізації профілю:', error);
+        showErrorToast('Помилка завантаження профілю');
+        window.location.href = 'login.php';
+    }
+}
+
+async function loadUserProgress(userId) {
+    try {
+        const response = await fetch(`server/user/get-progress.php?user_id=${userId}`);
+        if (!response.ok) throw new Error('Помилка завантаження прогресу');
+
+        const progressData = await response.json();
+
+        if (progressData.success) {
+            document.getElementById('profile-level').textContent = `Рівень: ${progressData.level || 0}`;
+            document.getElementById('profile-points').textContent = `Накопичено балів: ${progressData.experience_points || 0}`;
+        } else {
+            console.error('Помилка прогресу:', progressData.message);
+        }
+    } catch (error) {
+        console.error('Помилка завантаження прогресу:', error);
+    }
+}
+async function fetchUserData(userId) {
+    try {
+        const response = await fetch(`server/user/get-user.php?user_id=${userId}`);
+        if (!response.ok) throw new Error('Помилка завантаження даних');
+
+        const data = await response.json();
+
+        if (data.success) {
+            return data.user;
+        } else {
+            throw new Error(data.message || 'Помилка отримання даних');
+        }
+    } catch (error) {
+        console.error('Помилка:', error);
+        return {};
     }
 }
