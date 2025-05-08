@@ -50,7 +50,11 @@
                     <img src="picture/search.png" alt="Пошук" class="search-icon" />
                 </button>
             </div>
-            <div id="info" class="txt" > </div>
+            <div class="top">
+                <div id="info" class="txt"></div>
+                <button id="resetFilterBtn" class="show-all" style="margin-top: 0 !important;">Показати всі книги</button>
+            </div>
+           
             <section class="book-list" id="book-list"></section>
             <section class="pagination" id="pagination"></section>
         </div>  

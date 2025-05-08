@@ -49,21 +49,6 @@ body {
 
 }
 
-/*кнопка*/
-.show-all {
-    margin-top: 20px;
-    padding: 10px 20px;
-    color: #1A5267;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    display: none;
-}
-
-.show-all:hover {
-    background-color: #d2e8ff;
-}
-
 /*повідомлення*/
 .empty-message {
     display: none;

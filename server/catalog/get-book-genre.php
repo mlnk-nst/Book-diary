@@ -5,14 +5,14 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 include __DIR__ . '/../database.php';
+try {
+$genre_id = isset($_GET['genre_id']) ? intval($_GET['genre_id']) : 0;
 
 if (!isset($_GET['genre_id']) || !is_numeric($_GET['genre_id'])) {
     echo json_encode([]);
     exit;
 }
-$genre_id = intval($_GET['genre_id']);
-$stmt = $pdo->prepare("
-    SELECT 
+$stmt = $pdo->prepare("SELECT 
         b.book_id,
         b.name AS book_title,
         GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS author_name,
@@ -24,15 +24,28 @@ $stmt = $pdo->prepare("
     WHERE bg.genre_id = :genre_id
     GROUP BY b.book_id
     ORDER BY b.name
-");
-$stmt->bindParam(':genre_id', $genre_id, PDO::PARAM_INT);
+    LIMIT 100
+");$stmt->bindParam(':genre_id', $genre_id, PDO::PARAM_INT);
 $stmt->execute();
-$books = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$response = [
+$books = [];
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $row['cover_image'] = $row['cover_image'] ?
+        'data:image/jpeg;base64,' . base64_encode($row['cover_image']) :
+        null;
+    $books[] = $row;
+}
+
+echo json_encode([
     'success' => true,
     'data' => $books
-];
+]);
 
-echo json_encode($response);
+} catch (PDOException $e) {
+http_response_code(500);
+echo json_encode([
+    'success' => false,
+    'message' => 'Database error: ' . $e->getMessage()
+]);
+}
 ?>

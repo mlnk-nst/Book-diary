@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchButton = document.getElementById('search-button');
     const searchInput = document.getElementById('search-input');
     const infoContainer = document.getElementById('info');
+    const resetFilterBtn = document.getElementById('resetFilterBtn');
 
     let currentPage = 1;
     // вивід книг
@@ -57,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!query) {
             loadBooks(1);
             infoContainer.innerHTML = '';
+            resetFilterBtn.style.display = 'none';
             return;
         }
 
@@ -68,9 +70,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     renderBooks(data.data);
                     paginationContainer.innerHTML = '';
                     infoContainer.innerHTML = `Пошук по запиту: <strong>«${query}»</strong>`;
+                    resetFilterBtn.style.display = 'block';
                 } else {
                     paginationContainer.innerHTML = '';
                     infoContainer.innerHTML = `Книги не знайдено`;
+                    resetFilterBtn.style.display = 'none';
                 }
                 searchInput.value = '';
             })
@@ -95,32 +99,41 @@ document.addEventListener('DOMContentLoaded', function () {
             infoContainer.innerHTML = '';
         }
     });
+    resetFilterBtn.addEventListener('click', function () {
+        loadBooks(1);
+        resetFilterBtn.style.display = 'none';
+        searchInput.value = '';
+        infoContainer.innerHTML = '';
+    });
+
 
     function loadBooksByGenre(genreId, genreName) {
-        console.log(`Genre ID: ${genreId}, Genre Name: ${genreName}`);
+        const existingMessages = document.querySelectorAll('.message');
+        existingMessages.forEach(function (msg) {
+            msg.remove();
+        });
+        booksContainer.innerHTML = '';
         infoContainer.innerHTML = `Вибраний жанр: <strong>${genreName}</strong>`;
+        resetFilterBtn.style.display = 'inline-block';
         fetch(`server/catalog/get-book-genre.php?genre_id=${genreId}`)
-            .then(response => response.text())
-            .then(text => {
-                console.log(text);  // Виводимо відповідь у консоль
+            .then(response => response.json())
+            .then(data => {
                 try {
-                    const data = JSON.parse(text);
-                    console.log(data);
-                    if (data.length > 0) {
-                        renderBooks(data);
+                    if (data.success && data.data.length > 0) {
+                        renderBooks(data.data);
                         paginationContainer.innerHTML = '';
                     } else {
-                        booksContainer.innerHTML = `<div class="txt"><p>Немає книг у цьому жанрі.</p></div>`;
+                        infoContainer.innerHTML += `<br><span>Немає книг у цьому жанрі.</span>`;
                         paginationContainer.innerHTML = '';
                     }
                 } catch (error) {
                     console.error("Помилка при парсингу JSON:", error);
-                    booksContainer.innerHTML = `<div class="txt"><p>Помилка завантаження даних.</p></div>`;
+                    infoContainer.innerHTML = `<br><span >Помилка завантаження даних.</span>`;
                 }
             })
             .catch(error => {
                 console.error('Помилка завантаження книг за жанром:', error);
-                booksContainer.innerHTML = `<div class="txt"><p>Помилка завантаження книг</p></div>`;
+                infoContainer.innerHTML = `<br><span>Помилка завантаження книг</span>`;
             });
     }
     // пагінація
@@ -172,4 +185,6 @@ document.addEventListener('DOMContentLoaded', function () {
     loadBooks(currentPage);
     window.loadBooksByGenre = loadBooksByGenre;
 });
+
+
 

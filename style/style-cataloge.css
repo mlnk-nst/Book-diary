@@ -161,12 +161,9 @@ h4 {
 }
 
 .txt {
-    margin-left: 300px;
     text-align: center;
     font-size: 26px;
     color: #666;
-    margin-top: 20px;
-    margin-bottom: 40px;
     font-family: "Manrope", sans-serif;
 }
 
@@ -220,4 +217,15 @@ h4 {
         position: relative;
         transition: all 0.3s ease;
     }
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    margin-left: 360px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    margin-right: 52px;
 }
