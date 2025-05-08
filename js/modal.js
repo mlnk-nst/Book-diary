@@ -464,11 +464,18 @@ async function loadEditModal(type, authData) {
                 }
 
                 const endpoint = type === 'email' ? PATHS.updateEmail : PATHS.updatePassword;
-                const body = {
-                    userId: authData.userId,
-                    [type === 'email' ? 'newEmail' : 'newPassword']: twoInput.value,
-                    password: passwordField.value
-                };
+                const body = type === 'email'
+                    ? {
+                        userId: authData.userId,
+                        newEmail: twoInput.value,
+                        password: passwordField.value
+                    }
+                    : {
+                        userId: authData.userId,
+                        currentPassword: oneInput.value,
+                        newPassword: twoInput.value,
+                        confirmPassword: passwordField.value
+                    };
 
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -482,18 +489,17 @@ async function loadEditModal(type, authData) {
                 if (!response.ok) throw new Error('Помилка сервера');
 
                 const data = await response.json();
-
-                if (data.success) {
+                if (data.success === true) {
                     if (type === 'email') {
                         authData.user.email = twoInput.value;
                     }
                     showMessage(data.message || 'Зміни успішно збережено!', false);
                     editForm.reset();
-                    await new Promise(resolve => setTimeout(resolve, 5000));
 
-                    closeModal();
-                    loadModal('profile', authData);
-
+                    setTimeout(() => {
+                        closeModal();
+                        loadModal('profile', authData);
+                    }, 5000);
                 } else {
                     throw new Error(data.message || 'Помилка оновлення');
                 }
