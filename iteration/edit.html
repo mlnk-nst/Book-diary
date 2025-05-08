@@ -1,0 +1,37 @@
+<div id="edit-modal" class="modal">
+    <div class="login-container1">
+        <span class="close-modal">&times;</span>
+        <h2 id="edit-modal-title" class="h-edit"></h2>
+        <div class="register-messages" aria-live="polite"> </div>
+        <form id="edit-form">
+            <div class="form-group">
+                <label class="p-edit" id="1-label" for="1-input"></label>
+                <div class="input-with-toggle">
+                    <input type="text" class="input edit-i" id="1-input" readonly>
+                    <button type="button" class="toggle-password" data-target="1-input" style="display: none;">
+                        <i class="eye-icon">👁️</i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="p-edit" id="2-label" for="2-input"></label>
+                <div class="input-with-toggle">
+                    <input type="text" class="input edit-i" id="2-input" required>
+                    <button type="button" class="toggle-password" data-target="2-input" style="display: none;">
+                        <i class="eye-icon">👁️</i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="p-edit" id="3-label" for="3-input"></label>
+                <div class="input-with-toggle">
+                    <input type="password" class="input edit-i" id="3-input" required>
+                    <button type="button" class="toggle-password" data-target="3-input">
+                        <i class="eye-icon">👁️</i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn-blue edit-btn">Зберегти зміни</button>
+        </form>
+    </div>
+</div>

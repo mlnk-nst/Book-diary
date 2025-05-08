@@ -1,9 +1,11 @@
 const PATHS = {
     auth: 'server/login/check_auth.php',
-    modals: 'iteration/'
+    modals: 'iteration/',
+    updateEmail: 'server/user/update-email.php',
+    updatePassword: 'server/user/update-password.php'
 };
 
-// перевірка статусу  ( помилки)
+// перевірка статусу  
 async function checkAuth() {
     try {
         const response = await fetch(PATHS.auth, {
@@ -20,8 +22,6 @@ async function checkAuth() {
         return false;
     }
 }
-
-
 
 //  завантаження модалки 
 async function loadModal(modalType, authData = null) {
@@ -55,7 +55,6 @@ async function loadModal(modalType, authData = null) {
     }
 }
 
-
 // обробник кнопки профілю
 async function handleProfileButton() {
     try {
@@ -81,7 +80,6 @@ function closeModal() {
     if (container) container.style.display = 'none';
 
 }
-
 
 // ініціалізація 
 document.addEventListener('DOMContentLoaded', () => {
@@ -272,14 +270,30 @@ async function initProfileModal(authData) {
         if (authData.userRole === 'user') {
             await loadUserProgress(authData.userId);
         }
-        const addBookBtn = document.getElementById('add-book-btn');
-        const userInfo = document.querySelector('.user-info');
         const logoutBtn = document.getElementById('logout-btn');
-
         const isAdmin = authData.userRole === 'admin';
 
         profileContainer.classList.remove('admin', 'user');
         profileContainer.classList.add(isAdmin ? 'admin' : 'user');
+
+        const addBookBtn = document.getElementById('add-book-btn');
+        if (addBookBtn && isAdmin) {
+            addBookBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+                window.location.href = 'plusBook.php';
+            });
+        }
+
+        document.getElementById('change-email-btn').addEventListener('click', () => {
+            closeModal();
+            loadEditModal('email', authData);
+        });
+
+        document.getElementById('change-password-btn').addEventListener('click', () => {
+            closeModal();
+            loadEditModal('password', authData);
+        });
 
         // вийти з профіля
         if (logoutBtn) {
@@ -322,6 +336,7 @@ async function initProfileModal(authData) {
     }
 }
 
+//завантаження даних користувача
 async function loadUserProgress(userId) {
     try {
         const response = await fetch(`server/user/get-progress.php?user_id=${userId}`);
@@ -354,5 +369,147 @@ async function fetchUserData(userId) {
     } catch (error) {
         console.error('Помилка:', error);
         return {};
+    }
+}
+// видимість пароля
+function setupPasswordToggles() {
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('.eye-icon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                icon.textContent = '👁️';
+            }
+        });
+    });
+}
+// завантаження  вікна редагування
+async function loadEditModal(type, authData) {
+    try {
+        const container = document.getElementById('modal-container');
+        if (!container) throw new Error('Modal container not found');
+        const response = await fetch(`${PATHS.modals}edit.html`);
+        if (!response.ok) throw new Error('Failed to load edit modal');
+
+        const html = await response.text();
+        container.innerHTML = html;
+        container.style.display = 'flex';
+
+        const editForm = document.getElementById('edit-form');
+        const error_message = container.querySelector('.register-messages');
+        const editModalTitle = document.getElementById('edit-modal-title');
+        const oneLabel = document.getElementById('1-label');
+        const twoLabel = document.getElementById('2-label');
+        const threeLabel = document.getElementById('3-label');
+        const oneInput = document.getElementById('1-input');
+        const twoInput = document.getElementById('2-input');
+        const passwordField = document.getElementById('3-input');
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+
+        toggleButtons.forEach(btn => btn.style.display = 'none');
+        if (type === 'email') {
+            editModalTitle.textContent = 'Зміна електронної пошти';
+            oneLabel.textContent = 'Поточний email';
+            oneInput.type = 'text';
+            oneInput.value = authData.user.email;
+            oneInput.readOnly = true;
+            twoLabel.textContent = 'Новий email';
+            threeLabel.textContent = 'Пароль для підтвердження';
+            twoInput.type = 'email';
+            twoInput.placeholder = 'Введіть новий email';
+            document.querySelector('[data-target="3-input"]').style.display = 'block';
+        } else if (type === 'password') {
+            editModalTitle.textContent = 'Зміна пароля';
+            oneLabel.textContent = 'Поточний пароль';
+            twoLabel.textContent = 'Новий пароль';
+            threeLabel.textContent = 'Повторіть новий пароль';
+            oneInput.type = 'password';
+            oneInput.value = '';
+            oneInput.readOnly = false;
+            twoInput.type = 'password';
+            toggleButtons.forEach(btn => btn.style.display = 'block');
+        }
+        setupPasswordToggles();
+        function showMessage(message, isError = true) {
+            error_message.innerHTML = `
+                <div class="${isError ? 'error-message' : 'success-message'}">
+                    ${message}
+                </div>
+            `;
+
+            if (!isError) {
+                setTimeout(() => {
+                    error_message.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            error_message.innerHTML = '';
+
+            try {
+                if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(twoInput.value)) {
+                    throw new Error('Будь ласка, введіть коректний email');
+                }
+
+                if (type === 'password' && twoInput.value.length < 8) {
+                    throw new Error('Пароль повинен містити щонайменше 8 символів');
+                }
+
+                const endpoint = type === 'email' ? PATHS.updateEmail : PATHS.updatePassword;
+                const body = {
+                    userId: authData.userId,
+                    [type === 'email' ? 'newEmail' : 'newPassword']: twoInput.value,
+                    password: passwordField.value
+                };
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) throw new Error('Помилка сервера');
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (type === 'email') {
+                        authData.user.email = twoInput.value;
+                    }
+                    showMessage(data.message || 'Зміни успішно збережено!', false);
+                    editForm.reset();
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+
+                    closeModal();
+                    loadModal('profile', authData);
+
+                } else {
+                    throw new Error(data.message || 'Помилка оновлення');
+                }
+            } catch (error) {
+                console.error(`Помилка оновлення ${type}:`, error);
+                showMessage(error.message || `Помилка при зміні ${type === 'email' ? 'пошти' : 'пароля'}`);
+
+            }
+        });
+
+        // Обробник закриття модального вікна
+        const closeBtn = container.querySelector('.close-modal');
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    } catch (error) {
+        console.error('Помилка завантаження модалки редагування:', error);
+        showErrorToast('Помилка завантаження форми редагування');
     }
 }

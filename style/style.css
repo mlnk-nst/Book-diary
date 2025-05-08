@@ -473,7 +473,8 @@ footer {
     color: #539956;
     padding: 10px;
     border-radius: 15px;
-    width: 500px;
+    width: 100%;
+    max-width: 500px;
     text-align: center;
     font-weight: bold;
 }
@@ -482,7 +483,8 @@ footer {
     color: #c6002c;
     padding: 10px;
     border-radius: 15px;
-    width: 500px;
+    width: 100%;
+    max-width: 500px;
     text-align: center;
     font-weight: bold;
 }
@@ -505,6 +507,7 @@ footer {
     padding: 40px;
     max-height: 90vh;
     overflow-y: auto;
+    animation: modalFadeIn 0.3s ease-out 0.1s both;
 }
 
 .container-profile {
@@ -567,4 +570,83 @@ footer {
 
 .container-profile.admin .user-info {
     display: none;
+}
+
+/*вікно редагування*/
+.modal {}
+
+.p-edit {
+    font-family: "Manrope", sans-serif;
+    padding-bottom: 10px;
+}
+
+.h-edit {
+    font-family: "Manrope", sans-serif;
+    color: #113E4F;
+    text-align: center;
+}
+
+.edit-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.edit-i {
+    margin-top: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.input-with-toggle {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+}
+
+.login-container1 {
+    background-color: #CBE3F4;
+    border-radius: 20px;
+    animation: modalFadeIn 0.3s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 40px;
+    position: relative;
+    animation: modalFadeIn 0.3s ease-out 0.1s both;
+
+}
+
+@keyframes modalFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes overlayFadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
