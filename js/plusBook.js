@@ -51,14 +51,33 @@ document.getElementById('new_genre_checkbox').addEventListener('change', functio
 
 // вікно з помилками
 document.addEventListener('DOMContentLoaded', function () {
-    var message = document.querySelector('.message');
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    const messageType = urlParams.get('message_type');
+
+    const existingMessages = document.querySelectorAll('.message');
+    existingMessages.forEach(function (msg) {
+        msg.remove();
+    });
+
     if (message) {
-        message.style.display = 'block';
+        const messageBox = document.createElement('div');
+        messageBox.classList.add('message');
+
+        if (messageType === 'success') {
+            messageBox.classList.add('success-message');
+        } else {
+            messageBox.classList.add('error-message');
+        }
+
+        messageBox.textContent = decodeURIComponent(message);
+        document.body.appendChild(messageBox);
+
         setTimeout(function () {
-            message.classList.add('fade-out');
+            messageBox.classList.add('fade-out');
         }, 3000);
         setTimeout(function () {
-            message.style.display = 'none';
+            messageBox.remove();
         }, 3500);
     }
 });

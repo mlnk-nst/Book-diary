@@ -31,11 +31,24 @@ if (!password_verify($password, $user['password'])) {
     echo json_encode(['success' => false, 'message' => 'Неправильний пароль']);
     exit;
 }
+$oldEmail = $user['email'];
 
 $stmt = $pdo->prepare('UPDATE users SET email = ? WHERE user_id = ?');
 $success = $stmt->execute([$newEmail, $userId]);
 
 if ($success) {
+    if ($_SESSION['role'] == 'admin') {
+        $logStmt = $pdo->prepare("INSERT INTO action_logs 
+            (admin_id, action, old_value, new_value, timestamp) 
+            VALUES (?, ?, ?, ?, NOW())
+        ");
+        $logStmt->execute([
+            $userId,
+            'Зміна email',
+            $oldEmail,  
+            $newEmail    
+        ]);
+    }
     echo json_encode(['success' => true, 'message' => 'Email успішно змінено']);
 } else {
     echo json_encode(['success' => false, 'message' => 'Не вдалося оновити email']);
