@@ -488,7 +488,7 @@ footer {
 /* Стили для спливаючого повідомлення */
 .message {
     position: fixed;
-    top: 20px;
+    top: 100px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
@@ -501,7 +501,7 @@ footer {
     text-align: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     transition: opacity 0.5s ease-in-out;
-    background-color: white;
+    background-color: rgb(216, 238, 249);
 }
 
 

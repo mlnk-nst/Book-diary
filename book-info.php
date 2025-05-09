@@ -17,6 +17,8 @@
          <?php include 'iteration/header.php'; ?>
     </div>
     <div class="wrapper">
+        <div id="messageBox" class="message book-info-message" style="display: none;"></div>
+        <div id="modal-container" id="modal-reading"></div>
         <div class="container-left">
         <img src="" alt="Обкладинка книги" class="book-cover" id="bookCover">
         <button class="btn-blue" id="saveBookBtn">Зберегти</button>
@@ -31,12 +33,11 @@
         <p><strong>Жанри:</strong> <span id="bookGenres"></span></p>
         <p><strong>Рік випуску:</strong> <span id="bookYear"></span></p>
         <p><strong>Кількість сторінок:</strong> <span id="bookPages"></span></p>
-        
-        <div class="book-status">
-            <strong>Статус:</strong>
-            <select id="statusSelect"> </select>
-        </div>
-        
+
+        <div class="book-status" id="bookStatusContainer" style="display: none;">
+        <strong>Статус:</strong>
+        <span id="statusText"></span>
+    </div>
         <div class="rating-section" id="ratingSection" style="display: none;">
             <strong>Оцінка:</strong>
             <div class="stars">
