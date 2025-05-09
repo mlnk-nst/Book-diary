@@ -18,6 +18,9 @@
             <?php include 'iteration/header.php'; ?>
         <div class="content">
             <?php include 'server/catalog/get_genres.php'; ?>
+            <button id="menu-toggle" class="menu-toggle">
+            <img src="picture/menu.png" alt="Меню" />
+        </button>
             <section class="menu-category">
     <h3>Категорії книг</h3>
     <?php foreach ($categories as $category): ?>

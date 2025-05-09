@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => {
                 console.error('Error:', error);
                 booksContainer.innerHTML = `<div class="txt"><p>Помилка завантаження даних</p></div>`;
+
             });
     }
 
@@ -184,6 +185,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     loadBooks(currentPage);
     window.loadBooksByGenre = loadBooksByGenre;
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuCategory = document.querySelector('.menu-category');
+
+    menuToggle.addEventListener('click', () => {
+        menuCategory.classList.toggle('active');
+    });
+
 });
 
 
