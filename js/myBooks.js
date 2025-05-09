@@ -1,21 +1,8 @@
-
-const books = [
-    { title: "Назва книги 1", author: "Автор 1", status: "Продовжити", rating: "4/5", date: "26.02.25" },
-    { title: "Назва книги 22", author: "Автор 1", status: "Продовжити", rating: "4/5", date: "26.02.25" },
-    { title: "Назва книги 33", author: "Автор 1", status: "Продовжити", rating: "4/5", date: "26.02.25" },
-    { title: "Назва книги 44", author: "Автор 1", status: "Продовжити", rating: "4/5", date: "26.02.25" },
-    { title: "Назва книги 55", author: "Автор 1", status: "Продовжити", rating: "4/5", date: "26.02.25" },
-    { title: "Назва книги 2", author: "Автор 2", status: "Збережено" },
-    { title: "Назва книги 2", author: "Автор 2", status: "Збережено" },
-    { title: "Назва книги 2", author: "Автор 2", status: "Збережено" },
-    { title: "Назва книги 2", author: "Автор 2", status: "Збережено" },
-    { title: "Назва книги 2", author: "Автор 2", status: "Збережено" },
-    { title: "Назва книги 3", author: "Автор 3", status: "Прочитано", rating: "5/5", date: "27.02.25" },
-    { title: "Назва книги 3", author: "Автор 3", status: "Прочитано", rating: "5/5", date: "27.02.25" },
-    { title: "Назва книги 3", author: "Автор 3", status: "Прочитано", rating: "5/5", date: "27.02.25" },
-    { title: "Назва книги 3", author: "Автор 3", status: "Прочитано", rating: "5/5", date: "27.02.25" }
-];
-
+function fetchBooksByStatus(status) {
+    return fetch(`server/analytic/get-mybook.php?status=${status}`)
+        .then(response => response.json())
+        .then(data => data);
+}
 
 function toggleView(containerId, button) {
     const container = document.getElementById(containerId);
@@ -60,8 +47,8 @@ function initScrollButtons() {
 }
 
 
-function renderBooks() {
-    const continueBooks = books.filter(book => book.status === "Продовжити");
+function renderBooks(books) {
+    const continueBooks = books.filter(book => book.status === "Читаю");
     const savedBooks = books.filter(book => book.status === "Збережено");
     const readBooks = books.filter(book => book.status === "Прочитано");
 
@@ -86,7 +73,7 @@ function renderBooks() {
 
             container.innerHTML = section.books.map(book => `
                 <div class="my-book">
-                    <img src="picture/приклад_обкладинки.jpg" alt="book">
+                    <img src="data:image/jpeg;base64,${book.cover_image}" alt="${book.title}>
                     <div class="book-info">
                         <div class="left-side">
                             <h4>${book.title}</h4>
@@ -111,6 +98,19 @@ function renderBooks() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderBooks();
+    Promise.all([
+        fetchBooksByStatus("Читаю"),
+        fetchBooksByStatus("Збережено"),
+        fetchBooksByStatus("Прочитано")
+    ])
+        .then(([continueBooks, savedBooks, readBooks]) => {
+            const books = [...continueBooks, ...savedBooks, ...readBooks];
+            renderBooks(books);
+        })
+        .catch(error => {
+            console.error("Помилка при отриманні книг:", error);
+        });
     initScrollButtons();
 });
+
+
