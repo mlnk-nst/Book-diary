@@ -76,8 +76,10 @@ function renderBooks(books) {
                     <img src="data:image/jpeg;base64,${book.cover_image}" alt="${book.title}>
                     <div class="book-info">
                         <div class="left-side">
-                            <h4>${book.title}</h4>
-                            <p class="author">${book.author}</p>
+                               <h4 class="h4">
+                            <a href="book-info.php?id=${book.book_id}" class="book-link">${book.title}</a>
+                            </h4>
+                        <p class="author">${book.author}</p>
                         </div>
                         ${book.status === "Прочитано" ? `
                         <div class="right-side">

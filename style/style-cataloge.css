@@ -300,3 +300,7 @@ h4 {
         grid-template-columns: repeat(2, 1fr) !important;
     }
 }
+
+.h4:hover {
+    color: rgb(0, 97, 114);
+}

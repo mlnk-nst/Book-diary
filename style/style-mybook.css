@@ -97,3 +97,28 @@ body {
 .scroll-btn.right {
     right: 10px;
 }
+
+.h4 {
+    font-family: "Jost", sans-serif;
+    color: #000;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 18px;
+    margin-bottom: 0;
+    width: 195px;
+    text-align: left;
+    white-space: normal;
+    word-wrap: break-word;
+    position: relative;
+    transition: all 0.3s ease;
+
+}
+
+.book-link {
+    text-decoration: none;
+    color: black;
+}
+
+.book-link:hover {
+    color: rgb(0, 97, 114);
+}
