@@ -18,10 +18,11 @@
     </div>
     <div class="wrapper">
         <div id="messageBox" class="message book-info-message" style="display: none;"></div>
-        <div id="modal-container" id="modal-reading"></div>
         <div class="container-left">
         <img src="" alt="Обкладинка книги" class="book-cover" id="bookCover">
         <button class="btn-blue" id="saveBookBtn">Зберегти</button>
+        <button class="btn-blue" id="readBookBtn">Читати</button>
+        <button class="btn-red" id="endReadBtn">Завершити читання</button>
         <div class="admin-controls" id="adminControls">
             <button class="btn-blue" id="editBookBtn">Редагувати книгу</button>
             <button class="btn-red" id="deleteBookBtn">Видалити книгу</button>

@@ -3,6 +3,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get("id");
 
+    fetch('server/login/check_auth.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.userRole !== 'admin') {
+                const adminControls = document.getElementById('adminControls');
+                if (adminControls) {
+                    adminControls.style.display = 'none';
+                }
+            }
+            if (data.userRole == 'admin') {
+                const saveBookBtn = document.getElementById('saveBookBtn');
+                saveBookBtn.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Помилка перевірки ролі користувача:', error);
+        });
 
     if (!bookId) {
         alert("ID книги не вказано в URL");
@@ -73,6 +90,42 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Помилка:", error);
             alert("Не вдалося завантажити дані про книгу");
         });
+
+    //видалення книги
+    const deleteBookBtn = document.getElementById("deleteBookBtn");
+    if (deleteBookBtn) {
+        deleteBookBtn.addEventListener("click", async () => {
+            const confirmDelete = confirm("Ви впевнені, що хочете видалити цю книгу?");
+            if (confirmDelete) {
+                try {
+                    const response = await fetch("server/book-info/delete-book.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ bookId: bookId })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showMessage("Книгу успішно видалено!", true);
+                        setTimeout(() => {
+                            window.location.href = "catalog.php";
+                        }, 1500);
+                    } else {
+                        showMessage("Помилка: " + result.message, false);
+                    }
+                } catch (error) {
+                    console.error("Помилка видалення:", error);
+                    showMessage("Не вдалося видалити книгу. Спробуйте пізніше.", false);
+                }
+            } else {
+                console.log("Книга не була видалена.");
+            }
+        });
+    }
+
 
     actionBtn.addEventListener("click", async () => {
         const currentStatus = actionBtn.dataset.status || "";
@@ -175,27 +228,4 @@ function showMessage(text, isSuccess = true) {
             messageBox.style.display = "none";
         }, 500);
     }, 3000);
-}
-// модальне вікно 
-function closeModal() {
-    const modal = document.getElementById("modal-reading");
-    if (modal) modal.style.display = "none";
-}
-
-function openReadingModal(mode = "start") {
-    const modal = document.getElementById("modal-reading");
-    const title = document.getElementById("modal-title");
-    const label = document.getElementById("modal-label");
-
-    if (!modal || !title || !label) return;
-
-    if (mode === "start") {
-        title.textContent = "Початок читання";
-        label.textContent = "З якої сторінки ви починаєте читати?";
-    } else if (mode === "end") {
-        title.textContent = "Завершення читання";
-        label.textContent = "На якій сторінці ви закінчили читати?";
-    }
-
-    modal.style.display = "block";
 }
