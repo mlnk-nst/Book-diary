@@ -174,7 +174,7 @@ body {
     }
 }
 
-@media (max-width: 390px) {
+@media (max-width: 450px) {
     .header {
         height: 70px;
     }
@@ -193,7 +193,30 @@ body {
     .profile {
         width: 35px;
         height: 32px;
-        margin: 40px 10px 0 5px;
+        margin: 35px 10px 0 5px;
+    }
+}
+
+@media (max-width: 380px) {
+    .header {
+        height: 60px;
+    }
+
+    .header_left {
+        width: 65px;
+        padding-left: 5px;
+    }
+
+    .header_right li a {
+        font-size: 12px;
+        margin-right: 5px;
+        padding: 5px;
+    }
+
+    .profile {
+        width: 30px;
+        height: 30px;
+        margin: 35px 10px 0 5px;
     }
 }
 
