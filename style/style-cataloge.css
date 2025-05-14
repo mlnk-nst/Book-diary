@@ -120,13 +120,14 @@ h4 {
     align-items: center;
     margin-top: 20px;
     margin-bottom: 20px;
+    margin-left: 350px;
 }
 
 .pagination a {
     text-decoration: none;
     color: black;
     margin: 0 5px;
-    font-size: 16px;
+    font-size: 20px;
     font-family: "Manrope", sans-serif;
 }
 
@@ -147,6 +148,8 @@ h4 {
 .pagination img {
     width: 24px;
     height: 24px;
+    vertical-align: middle;
+    margin: 0 10px;
 }
 
 .content {
@@ -266,6 +269,7 @@ h4 {
 }
 
 #menu-toggle {
+    display: none;
     visibility: hidden;
     animation: fadeIn 0.5s ease-out;
     opacity: 0;

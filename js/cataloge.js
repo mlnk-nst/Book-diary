@@ -22,11 +22,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentPage = 1;
     // вивід книг
     function loadBooks(page) {
-        fetch(`server/catalog/get_books.php?page=${page}`)
+        const booksPerPage = getBooksPerPage();
+        fetch(`server/catalog/get_books.php?page=${page}&booksPerPage=${booksPerPage}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.count > 0) {
-                    renderBooks(data.data);
+                    const totalPages = data.total_pages;
+                    const books = data.data;
+                    renderBooks(books);
+                    renderPagination(totalPages, page);
                     if (data.total_pages > 1) {
                         renderPagination(data.total_pages, data.current_page);
                     } else {
@@ -138,6 +142,26 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
     // пагінація
+    function getBooksPerPage() {
+        const windowWidth = window.innerWidth;
+
+        if (windowWidth >= 1672) {
+            return 21;
+        } else if (windowWidth >= 1191) {
+            return 20;
+        } else if (windowWidth >= 1026) {
+            return 21;
+        }
+        else if (windowWidth >= 768) {
+            return 20;
+        }
+        else if (windowWidth >= 476) {
+            return 15;
+        } else {
+            return 14;
+        }
+    }
+
     function renderPagination(totalPages, currentPage) {
         let paginationHTML = '';
 
@@ -185,8 +209,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     loadBooks(currentPage);
     window.loadBooksByGenre = loadBooksByGenre;
+
+    // меню при малих екранах
     const menuToggle = document.getElementById('menu-toggle');
-    menuToggle.classList.add('visible');
+
     const menuCategory = document.querySelector('.menu-category');
 
     menuToggle.addEventListener('click', () => {
@@ -195,9 +221,11 @@ document.addEventListener('DOMContentLoaded', function () {
             menuToggle.style.display = 'none';
         } else {
             setTimeout(() => {
-                menuToggle.style.display = 'block';
-                menuToggle.classList.add('visible');
-            }, 500);
+                if (window.innerWidth <= 1024) {
+                    menuToggle.style.display = 'block';
+                    menuToggle.classList.add('visible');
+                }
+            }, 200);
         }
     });
     const categoryHeaders = document.querySelectorAll('.category-header');
@@ -205,9 +233,11 @@ document.addEventListener('DOMContentLoaded', function () {
         categoryHeader.addEventListener('click', (event) => {
             menuCategory.classList.remove('active');
             setTimeout(() => {
-                menuToggle.style.display = 'block';
-                menuToggle.classList.add('visible');
-            }, 500);
+                if (window.innerWidth <= 1024) {
+                    menuToggle.style.display = 'block';
+                    menuToggle.classList.add('visible');
+                }
+            }, 200);
             event.stopPropagation();
         });
     });
@@ -217,9 +247,11 @@ document.addEventListener('DOMContentLoaded', function () {
         subcategory.addEventListener('click', (event) => {
             menuCategory.classList.remove('active');
             setTimeout(() => {
-                menuToggle.style.display = 'block';
-                menuToggle.classList.add('visible');
-            }, 500);
+                if (window.innerWidth <= 1024) {
+                    menuToggle.style.display = 'block';
+                    menuToggle.classList.add('visible');
+                }
+            }, 200);
             event.stopPropagation();
         });
     });
@@ -227,12 +259,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!menuCategory.contains(event.target) && !menuToggle.contains(event.target)) {
             menuCategory.classList.remove('active');
             setTimeout(() => {
-                menuToggle.style.display = 'block';
-                menuToggle.classList.add('visible');
-            }, 500);
+                if (window.innerWidth <= 1024) {
+                    menuToggle.style.display = 'block';
+                    menuToggle.classList.add('visible');
+                }
+            }, 200);
         }
     });
 });
+
 
 
 

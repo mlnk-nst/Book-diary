@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 include __DIR__ . '/../database.php';
 try {
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $booksPerPage = 30;
+    $booksPerPage = isset($_GET['booksPerPage']) ? (int)$_GET['booksPerPage'] : 20;
     $offset = ($page - 1) * $booksPerPage;
 
     $stmt = $pdo->prepare("
