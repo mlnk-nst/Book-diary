@@ -3,6 +3,24 @@ document.getElementById('image').addEventListener('change', function () {
     document.querySelector('.file-name').textContent = fileName;
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookId = urlParams.get('id');
+
+    const form = document.getElementById('bookForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const bookIdField = document.getElementById('book_id');
+
+    if (bookId) {
+        form.action = 'server/add-book/edit-book.php';
+        submitBtn.textContent = 'Зберегти зміни';
+        bookIdField.value = bookId;
+    } else {
+        form.action = 'server/add-book/adding_books.php';
+        submitBtn.textContent = 'Додати книгу';
+        bookIdField.value = '';
+    }
+});
 
 document.getElementById('genre').addEventListener('change', function () {
     var genreId = this.value;
