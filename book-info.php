@@ -16,17 +16,23 @@
     <div class="header">
          <?php include 'iteration/header.php'; ?>
     </div>
-    <div class="wrapper">
+    <div class="wrapper" data-book-id="<?php echo $_GET['id'] ?? ''; ?>">
         <div id="messageBox" class="message book-info-message" style="display: none;"></div>
         <div class="container-left">
         <img src="" alt="Обкладинка книги" class="book-cover" id="bookCover">
         <button class="btn-blue" id="saveBookBtn">Зберегти</button>
         <button class="btn-blue" id="readBookBtn">Читати</button>
-        <button class="btn-red" id="endReadBtn">Завершити читання</button>
+        <button class="btn-red" id="endReadBtn" style="display: none;">Завершити читання</button>
         <div class="admin-controls" id="adminControls">
             <button class="btn-blue" id="editBookBtn">Редагувати книгу</button>
             <button class="btn-red" id="deleteBookBtn">Видалити книгу</button>
         </div>
+         <div class="reading-timer" id="readingTimer" style="display: none;">
+                <h3>Час читання:</h3>
+                <div class="timer-display">
+                    <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+                </div>
+            </div>
     </div>
     <div class="info">
     <h1 id="bookTitle"></h1>
@@ -52,8 +58,17 @@
         <h3>Анотація:</h3>
         <p id="bookAnnotation"></p>
 
-        
+         <div class="reading-history" id="readingHistorySection">
+                <h3>Історія читання:</h3>
+                <div class="reading-sessions" id="readingSessions">
+                    <p class="no-sessions">Інформація про сесії читання відсутня</p>
+                </div>
+            </div>
+
         <div class="review-section" id="reviewSection" style="display: none;">
+              <h3>Ваш відгук:</h3>
+                <div id="userReviewContainer">
+                </div>
             <button id="writeReviewBtn" class="btn-blue">Написати відгук</button>
             <div id="reviewForm" style="display: none;">
                 <textarea id="reviewText" placeholder="Ваш відгук..."></textarea>
