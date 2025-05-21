@@ -3,12 +3,7 @@ header('Content-Type: application/json');
 
 session_start();
 
-$auth = [
-    'isLoggedIn' => isset($_SESSION['user_id']),
-    'userId' => $_SESSION['user_id'] ?? null,
-];
-
-if (!$auth['isLoggedIn']) {
+if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Необхідна авторизація']);
     exit;
@@ -25,23 +20,30 @@ if (empty($data['book_id']) || !isset($data['start_page'])) {
 
 $bookId = (int)$data['book_id'];
 $startPage = (int)$data['start_page'];
-$userId = $auth['userId'];
-$conn = $pdo;
+$userId = $_SESSION['user_id'];
 $startTime = date('Y-m-d H:i:s');
+
 try {
-    $conn->beginTransaction();
-    $stmt = $conn->prepare("
+    $pdo->beginTransaction();
+    
+    $checkStmt = $pdo->prepare("
+        SELECT session_id FROM reading_sessions 
+        WHERE user_id = ? AND book_id = ? AND is_active = 1
+    ");
+    $checkStmt->execute([$userId, $bookId]);
+    if ($checkStmt->fetch()) {
+        throw new Exception('У вас вже є активна сесія читання для цієї книги');
+    }
+    
+    $stmt = $pdo->prepare("
         INSERT INTO reading_sessions 
         (user_id, book_id, start_time, start_page, is_active) 
-        VALUES (:user_id, :book_id, NOW(), :start_page, 1)
+        VALUES (?, ?, NOW(), ?, 1)
     ");
-    $stmt->execute([
-        ':user_id' => $userId,
-        ':book_id' => $bookId,
-        ':start_page' => $startPage
-    ]);
-    $sessionId = $conn->lastInsertId();
-       $conn->commit();
+    $stmt->execute([$userId, $bookId, $startPage]);
+    $sessionId = $pdo->lastInsertId();
+    
+    $pdo->commit();
     
     echo json_encode([
         'success' => true,
@@ -50,21 +52,12 @@ try {
         'message' => 'Сесія читання успішно розпочата'
     ]);
     
-} catch (PDOException $e) {
-    if (isset($conn) && $conn->inTransaction()) {
-        $conn->rollBack();
-    }
-    
-    if ($e->getCode() == '45000') {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    } else {
-        error_log("Database error: " . $e->getMessage());
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Помилка бази даних']);
-    }
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log("Error in start-reading.php: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Внутрішня помилка сервера']);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>

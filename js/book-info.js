@@ -195,11 +195,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             await showEndReadingModal();
         });
     }
-
-    // Check for active session on page load
     checkActiveSession();
 
-    // Check for stored session on page load
     const storedStartTime = localStorage.getItem(`readingSessionStart_${bookId}`);
     if (storedStartTime) {
         startTime = new Date(storedStartTime);
@@ -207,7 +204,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// Load modal content
+// Модальні вікна
 async function loadModal() {
     const response = await fetch('iteration/read.html');
     const html = await response.text();
@@ -218,7 +215,6 @@ async function loadModal() {
     return modal;
 }
 
-// Show modal
 async function showReadingModal() {
     const modal = await loadModal();
     modal.style.display = 'block';
@@ -232,7 +228,6 @@ async function showReadingModal() {
     };
 }
 
-// Close modal
 function closeModal() {
     const modal = document.getElementById('modal-reading');
     if (modal) {
@@ -240,13 +235,15 @@ function closeModal() {
     }
 }
 
-// Start reading session
+// Початок сеансу читання
 async function startReadingSession(startPage) {
     const bookId = getBookId();
+    console.log('Starting reading session for book:', bookId, 'page:', startPage);
 
     try {
-        // First check current status
         const statusCheck = await checkBookStatus(bookId);
+        console.log('Current book status:', statusCheck);
+
         if (statusCheck.status === "Читаю") {
             showMessage("Ви вже читаєте цю книгу!", false);
             return;
@@ -263,6 +260,7 @@ async function startReadingSession(startPage) {
             })
         });
         const data = await response.json();
+        console.log('Start reading response:', data);
 
         if (data.success) {
             activeSession = {
@@ -271,39 +269,42 @@ async function startReadingSession(startPage) {
                 start_page: startPage,
                 book_id: bookId
             };
+            console.log('Created active session:', activeSession);
+            startTime = new Date(data.start_time);
             startTimer(bookId);
             updateUIForActiveSession();
-            
-            // Only update status if it's "Збережено"
+
             if (statusCheck.status === "Збережено") {
                 await createStatus(bookId, "Читаю");
             }
-            
             showMessage("Сесію читання розпочато!", true);
+            await checkActiveSession();
         } else {
             showMessage("Помилка: " + (data.message || "Не вдалося почати сесію читання"), false);
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error starting reading session:', error);
         showMessage("Помилка при початку сесії читання", false);
     }
 }
 
-// Show end reading modal
+// модальне вікно завершення читання 
 async function showEndReadingModal() {
     const modal = await loadEndReadingModal();
     modal.style.display = 'block';
+
+    // Update timer in modal
+    updateModalTimer();
 
     const form = document.getElementById('end-reading-form');
     form.onsubmit = async (e) => {
         e.preventDefault();
         const endPage = document.getElementById('end-page-input').value;
         await endReadingSession(endPage);
-        modal.style.display = 'none';
+        closeEndReadingModal();
     };
 }
 
-// Load end reading modal
 async function loadEndReadingModal() {
     const response = await fetch('iteration/end-reading.html');
     const html = await response.text();
@@ -314,27 +315,49 @@ async function loadEndReadingModal() {
     return modal;
 }
 
-// End reading session
+// видалення модальних
+function closeEndReadingModal() {
+    const modal = document.getElementById('modal-end-reading');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.remove();
+    }
+}
+
+
+function updateModalTimer() {
+    if (!startTime) return;
+
+    const now = new Date();
+    const diff = now - startTime;
+
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+
+    const modalHours = document.getElementById('modal-hours');
+    const modalMinutes = document.getElementById('modal-minutes');
+    const modalSeconds = document.getElementById('modal-seconds');
+
+    if (modalHours) modalHours.textContent = hours.toString().padStart(2, '0');
+    if (modalMinutes) modalMinutes.textContent = minutes.toString().padStart(2, '0');
+    if (modalSeconds) modalSeconds.textContent = seconds.toString().padStart(2, '0');
+}
+
+// Закінчення сеансу читання
 async function endReadingSession(endPage) {
-    if (!activeSession) return;
+    if (!activeSession) {
+        showMessage("Немає активної сесії читання", false);
+        return;
+    }
 
     try {
-        // Get book info to check total pages
         const bookInfo = await getBookInfo(getBookId());
         const totalPages = bookInfo.pages || 0;
-        
-        // Check if end page is valid
+
         if (endPage > totalPages) {
             showMessage(`Помилка: Номер сторінки не може бути більше загальної кількості сторінок (${totalPages})`, false);
             return;
-        }
-
-        // Check if user is near the end of the book
-        if (totalPages - endPage <= 15) {
-            const confirmFinish = await showFinishBookConfirmation();
-            if (!confirmFinish) {
-                return;
-            }
         }
 
         const now = new Date();
@@ -357,13 +380,21 @@ async function endReadingSession(endPage) {
                 seconds: seconds
             })
         });
+
         const data = await response.json();
 
         if (data.success) {
             stopTimer(getBookId());
             activeSession = null;
             updateUIForInactiveSession();
-            await createStatus(getBookId(), "Прочитано");
+
+            if (data.is_near_end) {
+                const confirmFinish = await showFinishBookConfirmation();
+                if (confirmFinish) {
+                    await createStatus(getBookId(), "Прочитано");
+                }
+            }
+
             showMessage("Сесію читання завершено!", true);
         } else {
             showMessage("Помилка: " + (data.message || "Не вдалося завершити сесію читання"), false);
@@ -374,7 +405,6 @@ async function endReadingSession(endPage) {
     }
 }
 
-// Show finish book confirmation modal
 function showFinishBookConfirmation() {
     return new Promise((resolve) => {
         const modal = document.createElement('div');
@@ -403,14 +433,14 @@ function showFinishBookConfirmation() {
     });
 }
 
-// Timer functions
+// функції для таймера
 function startTimer(bookId) {
     if (timerInterval) clearInterval(timerInterval);
 
     if (!startTime) {
         startTime = new Date();
     }
-    
+
     updateTimerDisplay();
     timerInterval = setInterval(updateTimerDisplay, 1000);
     localStorage.setItem(`readingSessionStart_${bookId}`, startTime.toISOString());
@@ -427,7 +457,7 @@ function stopTimer(bookId) {
 
 function updateTimerDisplay() {
     if (!startTime) return;
-    
+
     const now = new Date();
     const diff = now - startTime;
 
@@ -446,26 +476,38 @@ function updateTimerDisplay() {
     if (timerElement) timerElement.style.display = 'block';
 }
 
-// UI update functions
 function updateUIForActiveSession() {
-    document.getElementById('readBookBtn').style.display = 'none';
-    document.getElementById('endReadBtn').style.display = 'block';
-    document.getElementById('readingTimer').style.display = 'block';
+    const readBookBtn = document.getElementById('readBookBtn');
+    const endReadBtn = document.getElementById('endReadBtn');
+    const readingTimer = document.getElementById('readingTimer');
+
+    if (readBookBtn) readBookBtn.style.display = 'none';
+    if (endReadBtn) endReadBtn.style.display = 'block';
+    if (readingTimer) readingTimer.style.display = 'block';
 }
 
 function updateUIForInactiveSession() {
-    document.getElementById('readBookBtn').style.display = 'block';
-    document.getElementById('endReadBtn').style.display = 'none';
-    document.getElementById('readingTimer').style.display = 'none';
+    const readBookBtn = document.getElementById('readBookBtn');
+    const endReadBtn = document.getElementById('endReadBtn');
+    const readingTimer = document.getElementById('readingTimer');
+
+    if (readBookBtn) readBookBtn.style.display = 'block';
+    if (endReadBtn) endReadBtn.style.display = 'none';
+    if (readingTimer) readingTimer.style.display = 'none';
 }
 
-// Check for active session on page load
+// Перевірка активного сеансу під час завантаження сторінки
 async function checkActiveSession() {
     const bookId = getBookId();
+    console.log('Checking active session for book:', bookId);
 
     try {
         const response = await fetch(`server/book-info/check-reading-session.php?book_id=${bookId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
+        console.log('Active session check response:', data);
 
         if (data.isActive) {
             activeSession = {
@@ -476,13 +518,20 @@ async function checkActiveSession() {
             startTime = new Date(data.start_time);
             startTimer(bookId);
             updateUIForActiveSession();
+            console.log('Active session found:', activeSession);
+        } else {
+            console.log('No active session found');
+            if (activeSession) {
+                console.log('Clearing local active session as server reports none');
+                activeSession = null;
+                updateUIForInactiveSession();
+            }
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error checking active session:', error);
     }
 }
 
-// Helper function to get book ID
 function getBookId() {
     return document.querySelector('[data-book-id]').dataset.bookId;
 }
@@ -547,8 +596,6 @@ async function createStatus(bookId, status) {
         if (saveBookBtn) {
             saveBookBtn.style.display = "none";
         }
-
-        // First check if the book exists in the diary
         const statusCheck = await checkBookStatus(bookId);
         const endpoint = statusCheck.status ? "server/book-info/update-status.php" : "server/book-info/create-status.php";
 
@@ -566,8 +613,7 @@ async function createStatus(bookId, status) {
         const result = await response.json();
 
         if (result.success) {
-            showMessage("Статус книги успішно оновлено!", true);
-            // Update UI elements instead of reloading
+            showMessage("Статус книги успішно оновлено!", true)
             const statusText = document.getElementById("statusText");
             const statusContainer = document.getElementById("bookStatusContainer");
             const ratingSection = document.getElementById("ratingSection");

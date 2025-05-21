@@ -63,3 +63,11 @@ body {
     }
 
 }
+
+.read-modal {
+    background-color: #CBE3F4;
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+}
