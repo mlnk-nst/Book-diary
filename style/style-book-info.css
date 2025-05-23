@@ -71,3 +71,15 @@ body {
     justify-content: center !important;
     flex-direction: column !important;
 }
+
+/* модальне вікно */
+.ms{
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+.center-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}

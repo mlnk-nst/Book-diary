@@ -1,14 +1,16 @@
 <div class="modal-container" id="modal-reading">
     <div id="messagebox" class="message book-info-message" style="display: none;"></div>
     <div class="modal-content read-modal">
-        <button class="close-modal" onclick="closeModal()">×</button>
-        <h2 class="font_h" id="h">Читання</h2>
+        <button class="close-modal" onclick="closeReadingModal()">×</button>
+        <h2 class="font_h" id="h">Початок читання</h2>
         <form id="reading-form">
             <div class="form-group">
-                <label for="reading-input" id="reading-label" class="font_text">Введіть сторінку:</label>
-                <input type="number" id="reading-input" class="input" min="1" required />
+                <label for="reading-input" id="reading-label" class="font_text ms">Сторінка початку читання:</label>
+                <input type="number" id="reading-input" class="input ms" min="1" required />
             </div>
-            <button id="btn" class="btn-blue">Підтвердити</button>
+            <div class="center-button">
+                <button id="btn" class="btn-blue ">Підтвердити</button>
+            </div>
         </form>
     </div>
 </div>
