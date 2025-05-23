@@ -22,17 +22,17 @@
         <img src="" alt="Обкладинка книги" class="book-cover" id="bookCover">
         <button class="btn-blue" id="saveBookBtn">Зберегти</button>
         <button class="btn-blue" id="readBookBtn">Читати</button>
-        <button class="btn-red" id="endReadBtn" style="display: none;">Завершити читання</button>
         <div class="admin-controls" id="adminControls">
             <button class="btn-blue" id="editBookBtn">Редагувати книгу</button>
             <button class="btn-red" id="deleteBookBtn">Видалити книгу</button>
         </div>
          <div class="reading-timer" id="readingTimer" style="display: none;">
-                <h3>Час читання:</h3>
+                <h3>Час читання</h3>
                 <div class="timer-display">
                     <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
                 </div>
             </div>
+            <button class="btn-red" id="endReadBtn" style="display: none;">Завершити читання</button>
     </div>
     <div class="info">
     <h1 id="bookTitle"></h1>

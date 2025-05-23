@@ -1,17 +1,19 @@
 <div class="modal-container" id="modal-end-reading">
     <div id="messagebox" class="message book-info-message" style="display: none;"></div>
-    <div class="modal-content end-reading-modal">
+    <div class="modal-content  read-modal">
         <button class="close-modal" onclick="closeEndReadingModal()">×</button>
         <h2 class="font_h">Завершення читання</h2>
         <form id="end-reading-form">
             <div class="form-group">
                 <label for="end-page-input" class="font_text">Введіть поточну сторінку:</label>
-                <input type="number" id="end-page-input" class="input" min="1" required />
+                <input type="number" id="end-page-input" class="input ms" min="1" required />
             </div>
             <div class="reading-time">
-                <p>Час читання: <span id="modal-hours">00</span>:<span id="modal-minutes">00</span>:<span id="modal-seconds">00</span></p>
+                <p class="p-time">Час читання: <span id="modal-hours">00</span>:<span id="modal-minutes">00</span>:<span id="modal-seconds">00</span></p>
             </div>
-            <button type="submit" class="btn-blue">Завершити читання</button>
+            <div class="center-button">
+                <button type="submit" class="btn-blue">Підтвердити</button>
+            </div>
         </form>
     </div>
 </div> 
