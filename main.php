@@ -45,22 +45,42 @@
         </div>
     </div>
     <section>
-        <h3 class="font_h">Новинки</h3>
-        <div class="book_dynamic">
-            <img src="picture/приклад_обкладинки.jpg" alt="book" href="">
-            <h4>Назва книги</h4>
-            <p>автор</p>
+
+        <div class="h-2">
+            <h3 id ="new-book" class="font_h">Новинки</h3>
+             <button id="b-new" class="show-all" onclick="toggleView('new-books', this)">Показати всі</button>
+         </div>
+        <div id="new-books" class="book-row-container">
+             <button class="scroll-btn left">
+            <img src="picture/arrow-l.png" alt="Попередні книги">
+         </button>
+        <div id="new-books-list" class="book-row"></div>
+        <button class="scroll-btn right">
+            <img src="picture/arrow-r.png" alt="Наступні книги">
+        </button>
+     
         </div>
-        <h3 class="font_h">Популярні</h3>
-        <div class="book_dynamic">
-            <img src="picture/приклад_обкладинки.jpg" alt="book" href="">
-            <h4>Назва книги</h4>
-            <p>автор</p>
+
+        <div class="h-2">
+            <h3 class="font_h">Популярні</h3>
+             <button id="b-popular" class="show-all" onclick="toggleView('popular-books', this)">Показати всі</button>
+         </div>
+        <div id="popular-books" class="book-row-container">
+             <button class="scroll-btn left">
+            <img src="picture/arrow-l.png" alt="Попередні книги">
+         </button>
+        <div id="popular-books-list" class="book-row"></div>
+        <button class="scroll-btn right">
+            <img src="picture/arrow-r.png" alt="Наступні книги">
+        </button>
+     
         </div>
+
     </section>
     <div class=" footer">
             <?php include 'iteration/footer.php'; ?>
         </div>
+        <script src="js/main.js"></script>
 </body>
 
 </html>

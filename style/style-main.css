@@ -187,3 +187,92 @@
 section {
     margin: 0 81px;
 }
+
+
+
+.scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background-color: rgba(203, 227, 244, 0.9);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    padding: 0;
+    outline: none;
+
+    img {
+        align-items: center;
+        height: 30px;
+        width: 30px;
+    }
+}
+
+.scroll-btn:hover {
+    background-color: #CBE3F4;
+}
+
+.scroll-btn.left {
+    left: -30px;
+}
+
+.scroll-btn.right {
+    right: -30px;
+}
+
+
+
+.book-row-container {
+    position: relative;
+    margin: 20px 0;
+    gap: 25px;
+}
+
+.book-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 25px;
+    padding-bottom: 20px;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;
+}
+
+.book-row::-webkit-scrollbar {
+    display: none;
+}
+
+.book-row.table-view {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    overflow-x: visible;
+    padding-right: 40px;
+}
+
+.book-row.table-view .scroll-btn {
+    display: none !important;
+}
+
+.book-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.book-link:hover {
+    color: #007bff;
+}
+
+.h-2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-right: 50px;
+}
