@@ -50,6 +50,7 @@ elseif ($type === 'popular') {
         $bookId = $row['book_id'];
         if (!isset($books[$bookId])) {
             $books[$bookId] = [
+                'book_id' => $bookId, 
                 'title' => $row['title'],
                 'authors' => [],
                 'cover' => 'data:image/jpeg;base64,' . base64_encode($row['cover_image'])
