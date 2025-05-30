@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (!isLoggedIn && saveBookBtn) {
                 saveBookBtn.addEventListener("click", () => {
-                    loadModal("login");
+                    window.loadModal("login");
                 });
             }
         })
@@ -64,40 +64,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     const readSection = document.getElementById("readingHistorySection");
 
     if (userRole !== 'admin') {
-        switch (status) {
-            case "Збережено":
-                statusContainer.style.display = "block";
-                statusText.textContent = "Збережено";
-                ratingSection.style.display = "none";
-                reviewSection.style.display = "none";
-                readBookBtn.style.display = "inline-block";
-                saveBookBtn.style.display = "none";
-                readSection.style.display = "none";
-                break;
-            case "Читаю":
-                statusContainer.style.display = "block";
-                statusText.textContent = "Читаю";
-                ratingSection.style.display = "none";
-                reviewSection.style.display = "none";
-                endReadBtn.style.display = "inline-block";
-                saveBookBtn.style.display = "none";
-                readSection.style.display = "block";
-                break;
-            case "Прочитано":
-                statusContainer.style.display = "block";
-                statusText.textContent = "Прочитано";
-                ratingSection.style.display = "block";
-                reviewSection.style.display = "block";
-                saveBookBtn.style.display = "none";
-                readSection.style.display = "block";
-                break;
-            default:
-                statusContainer.style.display = "none";
-                ratingSection.style.display = "none";
-                reviewSection.style.display = "none";
-                saveBookBtn.style.display = "inline-block";
-                readSection.style.display = "none";
-                break;
+        if (saveBookBtn) saveBookBtn.style.display = "none";
+        if (readBookBtn) readBookBtn.style.display = "none";
+        if (endReadBtn) endReadBtn.style.display = "none";
+        if (statusContainer) statusContainer.style.display = "none";
+        if (ratingSection) ratingSection.style.display = "none";
+        if (reviewSection) reviewSection.style.display = "none";
+        if (readSection) readSection.style.display = "none";
+
+        if (status) {
+            switch (status) {
+                case "Збережено":
+                    if (statusContainer) statusContainer.style.display = "block";
+                    if (statusText) statusText.textContent = "Збережено";
+                    if (readBookBtn) readBookBtn.style.display = "inline-block";
+                    break;
+                case "Читаю":
+                    if (statusContainer) statusContainer.style.display = "block";
+                    if (statusText) statusText.textContent = "Читаю";
+                    if (endReadBtn) endReadBtn.style.display = "inline-block";
+                    if (readBookBtn) readBookBtn.style.display = "inline-block";
+                    if (readSection) readSection.style.display = "block";
+                    break;
+                case "Прочитано":
+                    if (statusContainer) statusContainer.style.display = "block";
+                    if (statusText) statusText.textContent = "Прочитано";
+                    if (ratingSection) ratingSection.style.display = "block";
+                    if (reviewSection) reviewSection.style.display = "block";
+                    if (readSection) readSection.style.display = "block";
+                    break;
+            }
+        } else {
+            if (saveBookBtn) saveBookBtn.style.display = "inline-block";
         }
     }
 
@@ -181,7 +179,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // обробка кнопки зберегти
     saveBookBtn.addEventListener("click", async () => {
         await createStatus(bookId, "Збережено");
-        saveBookBtn.style.display = "none";
     });
 
     // обробка кнопки читати
@@ -202,10 +199,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         startTime = new Date(storedStartTime);
         startTimer(bookId);
     }
+
+    if (status === "Читаю" || status === "Прочитано") {
+        const sessions = await getReadingHistory(bookId);
+        displayReadingHistory(sessions);
+    }
 });
 
 // Модальні вікна
-async function loadModal() {
+async function loadReadingModal() {
     const response = await fetch('iteration/read.html');
     const html = await response.text();
     const parser = new DOMParser();
@@ -216,22 +218,28 @@ async function loadModal() {
 }
 
 async function showReadingModal() {
-    const modal = await loadModal();
-    modal.style.display = 'block';
+    const modal = await loadReadingModal();
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.classList.add('active');
+    }, 10);
 
     const form = document.getElementById('reading-form');
     form.onsubmit = async (e) => {
         e.preventDefault();
         const startPage = document.getElementById('reading-input').value;
         await startReadingSession(startPage);
-        modal.style.display = 'none';
+        closeReadingModal();
     };
 }
 
-function closeModal() {
+function closeReadingModal() {
     const modal = document.getElementById('modal-reading');
     if (modal) {
-        modal.style.display = 'none';
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
     }
 }
 
@@ -244,7 +252,11 @@ async function startReadingSession(startPage) {
         const statusCheck = await checkBookStatus(bookId);
         console.log('Current book status:', statusCheck);
 
-        if (statusCheck.status === "Читаю") {
+        // Перевіряємо наявність активної сесії
+        const sessionCheck = await fetch(`server/book-info/check-reading-session.php?book_id=${bookId}`);
+        const sessionData = await sessionCheck.json();
+
+        if (sessionData.isActive) {
             showMessage("Ви вже читаєте цю книгу!", false);
             return;
         }
@@ -291,9 +303,11 @@ async function startReadingSession(startPage) {
 // модальне вікно завершення читання 
 async function showEndReadingModal() {
     const modal = await loadEndReadingModal();
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.classList.add('active');
+    }, 10);
 
-    // Update timer in modal
     updateModalTimer();
 
     const form = document.getElementById('end-reading-form');
@@ -319,8 +333,11 @@ async function loadEndReadingModal() {
 function closeEndReadingModal() {
     const modal = document.getElementById('modal-end-reading');
     if (modal) {
-        modal.style.display = 'none';
-        modal.remove();
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.remove();
+        }, 300);
     }
 }
 
@@ -353,12 +370,15 @@ async function endReadingSession(endPage) {
 
     try {
         const bookInfo = await getBookInfo(getBookId());
-        const totalPages = bookInfo.pages || 0;
+        const totalPages = parseInt(bookInfo.pages) || 0;
+        const endPageNum = parseInt(endPage);
 
-        if (endPage > totalPages) {
+        if (endPageNum > totalPages) {
             showMessage(`Помилка: Номер сторінки не може бути більше загальної кількості сторінок (${totalPages})`, false);
             return;
         }
+
+        const isNearEnd = (totalPages - endPageNum) <= 15;
 
         const now = new Date();
         const diff = now - startTime;
@@ -374,7 +394,7 @@ async function endReadingSession(endPage) {
             body: JSON.stringify({
                 session_id: activeSession.session_id,
                 book_id: getBookId(),
-                end_page: endPage,
+                end_page: endPageNum,
                 hours: hours,
                 minutes: minutes,
                 seconds: seconds
@@ -388,11 +408,25 @@ async function endReadingSession(endPage) {
             activeSession = null;
             updateUIForInactiveSession();
 
-            if (data.is_near_end) {
-                const confirmFinish = await showFinishBookConfirmation();
-                if (confirmFinish) {
-                    await createStatus(getBookId(), "Прочитано");
-                }
+            // Закриваємо модальне вікно введення кінцевої сторінки
+            const endReadingModal = document.getElementById('modal-end-reading');
+            if (endReadingModal) {
+                endReadingModal.classList.remove('active');
+                setTimeout(() => {
+                    endReadingModal.style.display = 'none';
+                    endReadingModal.remove();
+                }, 300);
+            }
+
+            if (isNearEnd) {
+                setTimeout(async () => {
+                    const confirmFinish = await showFinishBookConfirmation();
+                    if (confirmFinish) {
+                        await createStatus(getBookId(), "Прочитано");
+                        // Оновлюємо інтерфейс після зміни статусу
+                        location.reload(); // або інший спосіб оновлення
+                    }
+                }, 500);
             }
 
             showMessage("Сесію читання завершено!", true);
@@ -405,31 +439,51 @@ async function endReadingSession(endPage) {
     }
 }
 
-function showFinishBookConfirmation() {
+async function showFinishBookConfirmation() {
     return new Promise((resolve) => {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h2>Завершити читання?</h2>
-                <p>Ви майже дочитали книгу. Бажаєте завершити читання?</p>
-                <div class="modal-buttons">
-                    <button class="btn btn-primary" id="confirmFinish">Так</button>
-                    <button class="btn btn-secondary" id="cancelFinish">Ні</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+        // Завантажуємо HTML модального вікна
+        fetch('iteration/finish-book.html')
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const modal = doc.getElementById('modal-finish-book');
+                document.body.appendChild(modal);
 
-        document.getElementById('confirmFinish').onclick = () => {
-            modal.remove();
-            resolve(true);
-        };
+                // Показуємо модальне вікно
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('active');
+                }, 10);
 
-        document.getElementById('cancelFinish').onclick = () => {
-            modal.remove();
-            resolve(false);
-        };
+                // Додаємо обробники подій для кнопок
+                document.getElementById('confirmFinish').onclick = () => {
+                    modal.classList.remove('active');
+                    setTimeout(() => {
+                        modal.remove();
+                        resolve(true);
+                    }, 300);
+                };
+
+                document.getElementById('cancelFinish').onclick = () => {
+                    modal.classList.remove('active');
+                    setTimeout(() => {
+                        modal.remove();
+                        resolve(false);
+                    }, 300);
+                };
+
+                // Додаємо обробник для закриття по кліку поза модальним вікном
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                        setTimeout(() => {
+                            modal.remove();
+                            resolve(false);
+                        }, 300);
+                    }
+                });
+            });
     });
 }
 
@@ -482,7 +536,7 @@ function updateUIForActiveSession() {
     const readingTimer = document.getElementById('readingTimer');
 
     if (readBookBtn) readBookBtn.style.display = 'none';
-    if (endReadBtn) endReadBtn.style.display = 'block';
+    if (endReadBtn) endReadBtn.style.display = 'inline-block';
     if (readingTimer) readingTimer.style.display = 'block';
 }
 
@@ -491,7 +545,7 @@ function updateUIForInactiveSession() {
     const endReadBtn = document.getElementById('endReadBtn');
     const readingTimer = document.getElementById('readingTimer');
 
-    if (readBookBtn) readBookBtn.style.display = 'block';
+    if (readBookBtn) readBookBtn.style.display = 'inline-block';
     if (endReadBtn) endReadBtn.style.display = 'none';
     if (readingTimer) readingTimer.style.display = 'none';
 }
@@ -502,14 +556,21 @@ async function checkActiveSession() {
     console.log('Checking active session for book:', bookId);
 
     try {
+        const statusCheck = await checkBookStatus(bookId);
+        const bookStatus = statusCheck.status;
+
         const response = await fetch(`server/book-info/check-reading-session.php?book_id=${bookId}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         console.log('Active session check response:', data);
+        const readBookBtn = document.getElementById('readBookBtn');
+        const endReadBtn = document.getElementById('endReadBtn');
+        const readingTimer = document.getElementById('readingTimer');
 
         if (data.isActive) {
+            console.log('Active session found:', data);
             activeSession = {
                 session_id: data.sessionId,
                 start_time: new Date(data.start_time),
@@ -517,18 +578,32 @@ async function checkActiveSession() {
             };
             startTime = new Date(data.start_time);
             startTimer(bookId);
-            updateUIForActiveSession();
-            console.log('Active session found:', activeSession);
+
+            if (readBookBtn) readBookBtn.style.display = 'none';
+            if (endReadBtn) endReadBtn.style.display = 'inline-block';
+            if (readingTimer) readingTimer.style.display = 'block';
         } else {
             console.log('No active session found');
-            if (activeSession) {
-                console.log('Clearing local active session as server reports none');
-                activeSession = null;
-                updateUIForInactiveSession();
+            activeSession = null;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
             }
+            if (readBookBtn && (bookStatus === "Збережено" || bookStatus === "Читаю")) {
+                readBookBtn.style.display = 'inline-block';
+            }
+            if (endReadBtn) endReadBtn.style.display = 'none';
+            if (readingTimer) readingTimer.style.display = 'none';
         }
     } catch (error) {
         console.error('Error checking active session:', error);
+        const readBookBtn = document.getElementById('readBookBtn');
+        const endReadBtn = document.getElementById('endReadBtn');
+        const readingTimer = document.getElementById('readingTimer');
+
+        if (readBookBtn) readBookBtn.style.display = 'none';
+        if (endReadBtn) endReadBtn.style.display = 'none';
+        if (readingTimer) readingTimer.style.display = 'none';
     }
 }
 
@@ -593,9 +668,13 @@ async function updateBookStatus(bookId, newStatus) {
 async function createStatus(bookId, status) {
     try {
         const saveBookBtn = document.getElementById("saveBookBtn");
-        if (saveBookBtn) {
-            saveBookBtn.style.display = "none";
-        }
+        const readBookBtn = document.getElementById("readBookBtn");
+        const statusText = document.getElementById("statusText");
+        const statusContainer = document.getElementById("bookStatusContainer");
+        const ratingSection = document.getElementById("ratingSection");
+        const reviewSection = document.getElementById("reviewSection");
+        const readSection = document.getElementById("readingHistorySection");
+
         const statusCheck = await checkBookStatus(bookId);
         const endpoint = statusCheck.status ? "server/book-info/update-status.php" : "server/book-info/create-status.php";
 
@@ -613,31 +692,54 @@ async function createStatus(bookId, status) {
         const result = await response.json();
 
         if (result.success) {
-            showMessage("Статус книги успішно оновлено!", true)
-            const statusText = document.getElementById("statusText");
-            const statusContainer = document.getElementById("bookStatusContainer");
-            const ratingSection = document.getElementById("ratingSection");
-            const reviewSection = document.getElementById("reviewSection");
-            const readSection = document.getElementById("readingHistorySection");
+            // Нараховуємо бали в залежності від статусу
+            if (status === "Читаю") {
+                await fetch('server/xp/status-read.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bookId: bookId })
+                });
+            } else if (status === "Прочитано") {
+                await fetch('server/xp/status-finished.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bookId: bookId })
+                });
+            }
 
+            showMessage("Статус книги успішно оновлено!", true);
+
+            // Оновлюємо UI елементи
             if (statusText) statusText.textContent = status;
             if (statusContainer) statusContainer.style.display = "block";
 
             switch (status) {
                 case "Збережено":
+                    if (saveBookBtn) saveBookBtn.style.display = "none";
+                    if (readBookBtn) readBookBtn.style.display = "inline-block";
                     if (ratingSection) ratingSection.style.display = "none";
                     if (reviewSection) reviewSection.style.display = "none";
                     if (readSection) readSection.style.display = "none";
                     break;
                 case "Читаю":
+                    if (saveBookBtn) saveBookBtn.style.display = "none";
+                    if (readBookBtn) readBookBtn.style.display = "inline-block";
                     if (ratingSection) ratingSection.style.display = "none";
                     if (reviewSection) reviewSection.style.display = "none";
                     if (readSection) readSection.style.display = "block";
+                    if (endReadBtn) endReadBtn.style.display = "none";
                     break;
                 case "Прочитано":
+                    if (saveBookBtn) saveBookBtn.style.display = "none";
+                    if (readBookBtn) readBookBtn.style.display = "none";
                     if (ratingSection) ratingSection.style.display = "block";
                     if (reviewSection) reviewSection.style.display = "block";
                     if (readSection) readSection.style.display = "block";
+                    if (endReadBtn) endReadBtn.style.display = "none";
                     break;
             }
         } else {
@@ -663,5 +765,70 @@ function showMessage(text, isSuccess = true) {
             messageBox.style.display = "none";
         }, 500);
     }, 3000);
+}
+
+// Функція для отримання історії читання
+async function getReadingHistory(bookId) {
+    try {
+        const response = await fetch(`server/book-info/get-reading-history.php?book_id=${bookId}`);
+        if (!response.ok) {
+            throw new Error('Помилка запиту до сервера');
+        }
+        const data = await response.json();
+        return data.sessions || [];
+    } catch (error) {
+        console.error('Помилка при отриманні історії читання:', error);
+        return [];
+    }
+}
+
+function formatDuration(timeString) {
+    const [hoursStr, minutesStr, secondsStr] = timeString.split(':');
+    const hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
+
+    let parts = [];
+    if (hours > 0) parts.push(`${hours} година${hours === 1 ? '' : (hours < 5 ? 'и' : '')}`);
+    if (minutes > 0) parts.push(`${minutes} хвилин${minutes === 1 ? 'а' : (minutes < 5 ? 'и' : '')}`);
+
+    return parts.length ? parts.join(' ') : 'менше хвилини';
+}
+
+// Функція для відображення історії читання
+function displayReadingHistory(sessions) {
+    const sessionsContainer = document.getElementById('readingSessions');
+    if (!sessionsContainer) return;
+
+    if (!sessions || sessions.length === 0) {
+        sessionsContainer.innerHTML = '<p class="no-sessions">Інформація про сесії читання відсутня</p>';
+        return;
+    }
+
+    const sessionsHTML = sessions.map(session => {
+        const startDate = new Date(session.start_time);
+        const endDate = session.end_time ? new Date(session.end_time) : null;
+        const duration = session.duration || 'Триває';
+
+        return `
+            <div class="reading-sessions">
+            <div class="reading-session">
+            <img src="picture/ar-history.png" alt="стрілка" class="session-image">
+                <div class="session-info">
+                 <div class="left-info">
+                    <p class="session-date">${startDate.toLocaleDateString()}</p>
+                    <p class="session-duration"> ${formatDuration(session.duration)}</p>
+                    </div>
+                    <div class="right-info">
+                    
+                     <p class="session-pages"> ${session.pages_read != null && session.pages_read !== 0 ? session.pages_read + ' сторінок' : 'Читається'}</p>
+                    <p class="session-pages">${session.start_page} - ${session.end_page || '...'}</p>
+                     </div>
+                     </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    sessionsContainer.innerHTML = sessionsHTML;
 }
 

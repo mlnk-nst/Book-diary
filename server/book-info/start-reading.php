@@ -35,6 +35,22 @@ try {
         throw new Exception('У вас вже є активна сесія читання для цієї книги');
     }
     
+     $lastSessionStmt = $pdo->prepare("
+        SELECT end_page FROM reading_sessions
+        WHERE user_id = ? AND book_id = ? AND is_active = 0 AND end_page IS NOT NULL
+        ORDER BY end_time DESC
+        LIMIT 1
+    ");
+    $lastSessionStmt->execute([$userId, $bookId]);
+    $lastSession = $lastSessionStmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($lastSession && isset($lastSession['end_page'])) {
+        $lastEndPage = (int)$lastSession['end_page'];
+        if ($startPage < $lastEndPage - 2) {
+            throw new Exception("Ви вже прочитали до сторінки {$lastEndPage}. Ви можете почати не більше ніж на 2 сторінки раніше.");
+        }
+    }
+    
     $stmt = $pdo->prepare("
         INSERT INTO reading_sessions 
         (user_id, book_id, start_time, start_page, is_active) 

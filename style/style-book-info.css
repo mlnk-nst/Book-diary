@@ -76,16 +76,18 @@ body {
 }
 
 /* модальне вікно */
-.ms{
+.ms {
     margin-bottom: 20px;
     margin-top: 10px;
 }
+
 .form-group {
     margin: 0px;
 }
+
 .p-time {
     margin: 0px;
-    text-align: center  ;
+    text-align: center;
 }
 
 .center-button {
@@ -94,32 +96,119 @@ body {
     margin-top: 20px;
 }
 
-.reading-timer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    max-width: 90%;
-    margin: 20px auto;
-    transition: all 0.3s ease-in-out;
-}
 
 .reading-timer h3 {
     font-size: clamp(1.2rem, 2.5vw, 2rem);
     margin-bottom: 10px;
     margin-top: 0px;
-    padding-left:  15px;
+    padding-left: 15px;
     color: #333;
 }
 
 .timer-display {
     font-size: clamp(1.5rem, 5vw, 3rem);
     font-weight: bold;
-    color:  #1A5267;
-    background-color: #e2e8f0;
-    padding: 10px 20px;
-    border-radius: 8px;
+    color: #000000;
 }
 
+.reading-history {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #ECEDEE;
+    border-radius: 20px;
+
+}
+
+.session-image {
+    width: auto;
+    height: 90px;
+    border-radius: 8px;
+    margin-left: 20px;
+    margin-right: 15px;
+}
+
+.reading-history h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.reading-sessions {
+    display: flex;
+    flex-direction: column;
+    gap: 21px;
+    padding-right: 10px;
+}
+
+.reading-session {
+    display: flex;
+    align-items: center;
+}
+
+
+.session-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.left-info,
+.right-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.session-date {
+    font-weight: bold;
+    color: #000000;
+    margin-top: 7px;
+    margin-bottom: 5px;
+}
+
+.session-time {
+    color: #666;
+    margin-top: 5px;
+}
+
+.session-duration {
+    font-weight: 500;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    color: #3F3E3E;
+    font-family: Manrope;
+}
+
+.session-pages {
+    margin-top: 5px;
+    margin-bottom: 6px;
+    text-align: right;
+    color: #3F3E3E;
+    font-family: Manrope;
+}
+
+
+.no-sessions {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.btn-block {
+    border-radius: 25px;
+    background: #ECEDEE;
+    font-family: "Jost", sans-serif;
+    color: #000;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 10px 30px;
+    border: none;
+}
+
+.read-data {
+    font-size: 24px;
+    font-family: "Jost", sans-serif;
+    font-weight: bold;
+    margin: 0;
+}
