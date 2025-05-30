@@ -25,11 +25,10 @@ if (!in_array($data->status, $validStatuses)) {
 $user_id = $_SESSION['user_id'];
 $book_id = (int)$data->book_id;
 $status = $data->status;
-$updateDate = ($status == 'Прочитано') ? date('Y-m-d H:i:s') : null;
 
 $query = "UPDATE diary SET status = ?, read_data = ? WHERE user_id = ? AND book_id = ?";
 $stmt = $pdo->prepare($query);
-$stmt->execute([$status, $updateDate, $user_id, $book_id]);
+$stmt->execute([$status, date('Y-m-d H:i:s'), $user_id, $book_id]);
 
 if ($stmt->rowCount() > 0) {
     echo json_encode(['success' => true]);

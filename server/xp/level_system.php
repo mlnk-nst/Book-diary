@@ -22,11 +22,10 @@ function checkAndUpdateLevel(int $userId, PDO $pdo): void {
     $xpForNextLevel = getXpForNextLevel($currentLevel);
 
     if ($currentExp >= $xpForNextLevel) {
-        $currentExp -= $xpForNextLevel;
         $currentLevel++;
 
-        $stmtUpdate = $pdo->prepare("UPDATE user_progress SET experience_points = ?, level = ? WHERE user_id = ?");
-        $stmtUpdate->execute([$currentExp, $currentLevel, $userId]);
+        $stmtUpdate = $pdo->prepare("UPDATE user_progress SET level = ? WHERE user_id = ?");
+        $stmtUpdate->execute([$currentLevel, $userId]);
     }
 }
 function addExperiencePoints(int $userId, int $pointsToAdd, PDO $pdo): void {

@@ -22,8 +22,9 @@
         <img src="" alt="Обкладинка книги" class="book-cover" id="bookCover">
         <button class="btn-blue" id="saveBookBtn">Зберегти</button>
         <button class="btn-blue" id="readBookBtn">Читати</button>
-        <p class="btn-block" id="read-book">Прочитано</p>
         <p class="read-data"id="read-data">Дата завершення:</p>
+        <p class="btn-block" id="read-book">Прочитано</p>
+        <button class="btn-blue" id="ratingBtn">Записати враження</button>
         
         <div class="admin-controls" id="adminControls">
             <button class="btn-blue" id="editBookBtn">Редагувати книгу</button>
@@ -59,7 +60,7 @@
         </div>
         <h3>Анотація:</h3>
         <p id="bookAnnotation"></p>
-        <h3>Щоденник читання</h3>
+        <h3 id= "reading-d">Щоденник читання</h3>
          <div class="reading-history" id="readingHistorySection">
                 <div class="reading-sessions" id="readingSessions">
                     <p class="no-sessions">Інформація про сесії читання відсутня</p>
@@ -70,7 +71,7 @@
               <h3>Ваш відгук:</h3>
                 <div id="userReviewContainer">
                 </div>
-            <button id="writeReviewBtn" class="btn-blue">Написати відгук</button>
+            <button id="writeReviewBtn" class="btn-blue">Редагувати відгук</button>
             <div id="reviewForm" style="display: none;">
                 <textarea id="reviewText" placeholder="Ваш відгук..."></textarea>
                 <button id="submitReviewBtn" class="btn-blue">Надіслати відгук</button>

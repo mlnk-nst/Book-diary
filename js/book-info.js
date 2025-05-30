@@ -20,10 +20,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     const saveBookBtn = document.getElementById("saveBookBtn");
     const readBookBtn = document.getElementById("readBookBtn");
     const endReadBtn = document.getElementById("endReadBtn");
+    const ratingBtn = document.getElementById("ratingBtn");
+    const statusText = document.getElementById("statusText");
+    const statusContainer = document.getElementById("bookStatusContainer");
+    const ratingSection = document.getElementById("ratingSection");
+    const reviewSection = document.getElementById("reviewSection");
+    const readSection = document.getElementById("readingHistorySection");
 
     saveBookBtn.style.display = "none";
     readBookBtn.style.display = "none";
     endReadBtn.style.display = "none";
+    ratingBtn.style.display = "none";
+
+    // Додаємо обробник для кнопки "Записати враження"
+    if (ratingBtn) {
+        ratingBtn.addEventListener("click", showReviewModal);
+    }
 
     //перевірка ролі
     fetch('server/login/check_auth.php')
@@ -43,6 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (endReadBtn) endReadBtn.style.display = 'none';
                 if (readingHistorySection) readingHistorySection.style.display = 'none';
                 if (adminControls) adminControls.style.display = 'block';
+                if (ratingBtn) ratingBtn.style.display = 'none';
             }
 
             if (!isLoggedIn && saveBookBtn) {
@@ -56,12 +69,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
     const { status, rating, review } = await checkBookStatus(bookId);
+    console.log('Book status:', status);
+    console.log('Rating:', rating);
+    console.log('Review:', review);
 
-    const statusText = document.getElementById("statusText");
-    const statusContainer = document.getElementById("bookStatusContainer");
-    const ratingSection = document.getElementById("ratingSection");
-    const reviewSection = document.getElementById("reviewSection");
-    const readSection = document.getElementById("readingHistorySection");
+    console.log('UI elements:', {
+        statusText,
+        statusContainer,
+        ratingSection,
+        reviewSection,
+        readSection,
+        ratingBtn
+    });
 
     if (userRole !== 'admin') {
         if (saveBookBtn) saveBookBtn.style.display = "none";
@@ -71,6 +90,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (ratingSection) ratingSection.style.display = "none";
         if (reviewSection) reviewSection.style.display = "none";
         if (readSection) readSection.style.display = "none";
+        if (ratingBtn) ratingBtn.style.display = "none";
+
+        // Приховуємо елементи за замовчуванням
+        const readingD = document.getElementById('reading-d');
+        const readData = document.getElementById('read-data');
+        const readBook = document.getElementById('read-book');
+        
+        if (readingD) readingD.style.display = 'none';
+        if (readData) readData.style.display = 'none';
+        if (readBook) readBook.style.display = 'none';
 
         if (status) {
             switch (status) {
@@ -85,6 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (endReadBtn) endReadBtn.style.display = "inline-block";
                     if (readBookBtn) readBookBtn.style.display = "inline-block";
                     if (readSection) readSection.style.display = "block";
+                    if (readingD) readingD.style.display = 'block';
                     break;
                 case "Прочитано":
                     if (statusContainer) statusContainer.style.display = "block";
@@ -92,6 +122,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (ratingSection) ratingSection.style.display = "block";
                     if (reviewSection) reviewSection.style.display = "block";
                     if (readSection) readSection.style.display = "block";
+                    if (readingD) readingD.style.display = 'block';
+                    if (readData) readData.style.display = 'block';
+                    if (readBook) readBook.style.display = 'block';
+                    
+                    // Перевіряємо чи є оцінка та відгук
+                    if (rating && review) {
+                        if (ratingBtn) ratingBtn.style.display = "none";
+                    } else {
+                        if (ratingBtn) ratingBtn.style.display = "inline-block";
+                    }
                     break;
             }
         } else {
@@ -397,7 +437,8 @@ async function endReadingSession(endPage) {
                 end_page: endPageNum,
                 hours: hours,
                 minutes: minutes,
-                seconds: seconds
+                seconds: seconds,
+                is_finished: isNearEnd
             })
         });
 
@@ -424,9 +465,13 @@ async function endReadingSession(endPage) {
                     if (confirmFinish) {
                         await createStatus(getBookId(), "Прочитано");
                         // Оновлюємо інтерфейс після зміни статусу
-                        location.reload(); // або інший спосіб оновлення
+                        location.reload();
                     }
                 }, 500);
+            } else {
+                // Якщо книга не прочитана до кінця, оновлюємо статус на "Читаю"
+                await createStatus(getBookId(), "Читаю");
+                location.reload();
             }
 
             showMessage("Сесію читання завершено!", true);
@@ -534,10 +579,18 @@ function updateUIForActiveSession() {
     const readBookBtn = document.getElementById('readBookBtn');
     const endReadBtn = document.getElementById('endReadBtn');
     const readingTimer = document.getElementById('readingTimer');
+    const readingD = document.getElementById('reading-d');
+    const readingSessions = document.getElementById('readingSessions');
+    const statusText = document.getElementById('statusText');
+    const statusContainer = document.getElementById('bookStatusContainer');
 
     if (readBookBtn) readBookBtn.style.display = 'none';
     if (endReadBtn) endReadBtn.style.display = 'inline-block';
     if (readingTimer) readingTimer.style.display = 'block';
+    if (readingD) readingD.style.display = 'block';
+    if (readingSessions) readingSessions.style.display = 'block';
+    if (statusText) statusText.textContent = 'Читаю';
+    if (statusContainer) statusContainer.style.display = 'block';
 }
 
 function updateUIForInactiveSession() {
@@ -674,9 +727,13 @@ async function createStatus(bookId, status) {
         const ratingSection = document.getElementById("ratingSection");
         const reviewSection = document.getElementById("reviewSection");
         const readSection = document.getElementById("readingHistorySection");
+        const ratingBtn = document.getElementById("ratingBtn");
 
         const statusCheck = await checkBookStatus(bookId);
         const endpoint = statusCheck.status ? "server/book-info/update-status.php" : "server/book-info/create-status.php";
+
+        // Додаємо дату завершення читання, якщо статус "Прочитано"
+        const currentDate = status === "Прочитано" ? new Date().toISOString().split('T')[0] : null;
 
         const response = await fetch(endpoint, {
             method: "POST",
@@ -685,7 +742,8 @@ async function createStatus(bookId, status) {
             },
             body: JSON.stringify({
                 book_id: bookId,
-                status: status
+                status: status,
+                read_date: currentDate // Додаємо дату завершення читання
             })
         });
 
@@ -724,6 +782,7 @@ async function createStatus(bookId, status) {
                     if (ratingSection) ratingSection.style.display = "none";
                     if (reviewSection) reviewSection.style.display = "none";
                     if (readSection) readSection.style.display = "none";
+                    if (ratingBtn) ratingBtn.style.display = "none";
                     break;
                 case "Читаю":
                     if (saveBookBtn) saveBookBtn.style.display = "none";
@@ -732,6 +791,7 @@ async function createStatus(bookId, status) {
                     if (reviewSection) reviewSection.style.display = "none";
                     if (readSection) readSection.style.display = "block";
                     if (endReadBtn) endReadBtn.style.display = "none";
+                    if (ratingBtn) ratingBtn.style.display = "none";
                     break;
                 case "Прочитано":
                     if (saveBookBtn) saveBookBtn.style.display = "none";
@@ -740,6 +800,7 @@ async function createStatus(bookId, status) {
                     if (reviewSection) reviewSection.style.display = "block";
                     if (readSection) readSection.style.display = "block";
                     if (endReadBtn) endReadBtn.style.display = "none";
+                    if (ratingBtn) ratingBtn.style.display = "inline-block";
                     break;
             }
         } else {
@@ -830,5 +891,126 @@ function displayReadingHistory(sessions) {
     }).join('');
 
     sessionsContainer.innerHTML = sessionsHTML;
+}
+
+async function loadReviewModal() {
+    const response = await fetch('iteration/review.html');
+    const html = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const modal = doc.getElementById('modal-review');
+    document.body.appendChild(modal);
+    return modal;
+}
+
+async function showReviewModal() {
+    console.log('Opening review modal...');
+    const modal = await loadReviewModal();
+    console.log('Modal loaded:', modal);
+    
+    // Спочатку встановлюємо display: flex
+    modal.style.display = 'flex';
+    
+    // Додаємо клас active після невеликої затримки для запуску анімації
+    requestAnimationFrame(() => {
+        modal.classList.add('active');
+    });
+
+    let selectedRating = 0;
+    const stars = modal.querySelectorAll('.star');
+    const submitButton = modal.querySelector('.btn-blue');
+    const reviewText = modal.querySelector('.input');
+    const closeButton = modal.querySelector('.close-modal');
+
+    console.log('Modal elements:', { stars, submitButton, reviewText, closeButton });
+
+    // Обробка кліків по зірках
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const rating = parseInt(star.dataset.rating);
+            selectedRating = rating;
+            
+            // Оновлюємо зображення зірок
+            stars.forEach((s, index) => {
+                s.src = index < rating ? 'picture/star.png' : 'picture/star-gray.png';
+            });
+        });
+
+        // Ефект при наведенні
+        star.addEventListener('mouseover', () => {
+            const rating = parseInt(star.dataset.rating);
+            stars.forEach((s, index) => {
+                s.src = index < rating ? 'picture/star.png' : 'picture/star-gray.png';
+            });
+        });
+
+        star.addEventListener('mouseout', () => {
+            stars.forEach((s, index) => {
+                s.src = index < selectedRating ? 'picture/star.png' : 'picture/star-gray.png';
+            });
+        });
+    });
+
+    // Обробка відправки форми
+    if (submitButton) {
+        submitButton.addEventListener('click', async () => {
+            if (selectedRating === 0) {
+                showMessage("Будь ласка, оберіть оцінку", false);
+                return;
+            }
+
+            try {
+                const response = await fetch('server/book-info/submit-review.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bookId: getBookId(),
+                        rating: selectedRating,
+                        reviewText: reviewText.value.trim(),
+                        is_public: document.getElementById('is_public').checked
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, true);
+                    closeReviewModal();
+                    location.reload();
+                } else {
+                    showMessage("Помилка: " + result.message, false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage("Помилка при збереженні відгуку", false);
+            }
+        });
+    }
+
+    // Закриття модального вікна
+    if (closeButton) {
+        closeButton.addEventListener('click', closeReviewModal);
+    }
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeReviewModal();
+        }
+    });
+}
+
+function closeReviewModal() {
+    const modal = document.getElementById('modal-review');
+    if (modal) {
+        // Спочатку видаляємо клас active для запуску анімації закриття
+        modal.classList.remove('active');
+        
+        // Чекаємо завершення анімації перед видаленням
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.remove();
+        }, 300);
+    }
 }
 
