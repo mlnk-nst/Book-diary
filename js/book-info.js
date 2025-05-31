@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Додаємо обробник для кнопки "Записати враження"
     if (ratingBtn) {
-        ratingBtn.addEventListener("click", showReviewModal);
+        ratingBtn.addEventListener("click", () => showReviewModal(false));
     }
 
     //перевірка ролі
@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const readingD = document.getElementById('reading-d');
         const readData = document.getElementById('read-data');
         const readBook = document.getElementById('read-book');
-        
+
         if (readingD) readingD.style.display = 'none';
         if (readData) readData.style.display = 'none';
         if (readBook) readBook.style.display = 'none';
@@ -125,8 +125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (readingD) readingD.style.display = 'block';
                     if (readData) readData.style.display = 'block';
                     if (readBook) readBook.style.display = 'block';
-                    
-                    // Перевіряємо чи є оцінка та відгук
+
                     if (rating && review) {
                         if (ratingBtn) ratingBtn.style.display = "none";
                     } else {
@@ -686,18 +685,58 @@ async function checkBookStatus(bookId) {
         }
 
         const data = await response.json();
+        const readData = document.getElementById('read-data');
+        const userReviewContainer = document.getElementById('userReviewContainer');
+        const stars = document.querySelectorAll('#ratingSection .stars img');
+        const writeReviewBtn = document.getElementById('writeReviewBtn');
+
+        if (readData && data.read_date) {
+            readData.textContent = `Дата завершення: ${data.read_date}`;
+        }
+
+        if (stars.length > 0) {
+            if (data.rating) {
+                stars.forEach((star, index) => {
+                    star.src = index < data.rating ? 'picture/star.png' : 'picture/star-gray.png';
+                });
+                stars[0].parentElement.style.display = 'flex';
+                ratingSection.style.display = 'flex';
+            } else {
+                stars[0].parentElement.innerHTML = '<p class="no-rating">Ви ще не оцінили її</p>';
+            }
+        }
+
+        if (userReviewContainer) {
+            if (data.review) {
+                userReviewContainer.innerHTML = `
+                    <div class="review-content">
+                        <p class="review-text">${data.review}</p>
+                    </div>
+                `;
+                if (writeReviewBtn) {
+                    writeReviewBtn.style.display = 'block';
+                }
+            } else {
+                userReviewContainer.innerHTML = '<p class="no-review">Відгук відсутній</p>';
+                if (writeReviewBtn) {
+                    writeReviewBtn.style.display = 'none';
+                }
+            }
+        }
 
         return {
             status: data.status || null,
             rating: data.rating || null,
-            review: data.review || null
+            review: data.review || null,
+            is_public: data.is_public || false
         };
     } catch (error) {
         console.error('Помилка при перевірці статусу книги:', error);
         return {
             status: null,
             rating: null,
-            review: null
+            review: null,
+            is_public: false
         };
     }
 }
@@ -728,11 +767,8 @@ async function createStatus(bookId, status) {
         const reviewSection = document.getElementById("reviewSection");
         const readSection = document.getElementById("readingHistorySection");
         const ratingBtn = document.getElementById("ratingBtn");
-
         const statusCheck = await checkBookStatus(bookId);
         const endpoint = statusCheck.status ? "server/book-info/update-status.php" : "server/book-info/create-status.php";
-
-        // Додаємо дату завершення читання, якщо статус "Прочитано"
         const currentDate = status === "Прочитано" ? new Date().toISOString().split('T')[0] : null;
 
         const response = await fetch(endpoint, {
@@ -743,14 +779,13 @@ async function createStatus(bookId, status) {
             body: JSON.stringify({
                 book_id: bookId,
                 status: status,
-                read_date: currentDate // Додаємо дату завершення читання
+                read_date: currentDate
             })
         });
 
         const result = await response.json();
 
         if (result.success) {
-            // Нараховуємо бали в залежності від статусу
             if (status === "Читаю") {
                 await fetch('server/xp/status-read.php', {
                     method: 'POST',
@@ -770,8 +805,6 @@ async function createStatus(bookId, status) {
             }
 
             showMessage("Статус книги успішно оновлено!", true);
-
-            // Оновлюємо UI елементи
             if (statusText) statusText.textContent = status;
             if (statusContainer) statusContainer.style.display = "block";
 
@@ -828,7 +861,7 @@ function showMessage(text, isSuccess = true) {
     }, 3000);
 }
 
-// Функція для отримання історії читання
+// для отримання історії читання
 async function getReadingHistory(bookId) {
     try {
         const response = await fetch(`server/book-info/get-reading-history.php?book_id=${bookId}`);
@@ -855,7 +888,7 @@ function formatDuration(timeString) {
     return parts.length ? parts.join(' ') : 'менше хвилини';
 }
 
-// Функція для відображення історії читання
+// для відображення історії читання
 function displayReadingHistory(sessions) {
     const sessionsContainer = document.getElementById('readingSessions');
     if (!sessionsContainer) return;
@@ -903,15 +936,12 @@ async function loadReviewModal() {
     return modal;
 }
 
-async function showReviewModal() {
+async function showReviewModal(isEdit = false) {
     console.log('Opening review modal...');
     const modal = await loadReviewModal();
     console.log('Modal loaded:', modal);
-    
-    // Спочатку встановлюємо display: flex
     modal.style.display = 'flex';
-    
-    // Додаємо клас active після невеликої затримки для запуску анімації
+
     requestAnimationFrame(() => {
         modal.classList.add('active');
     });
@@ -921,22 +951,47 @@ async function showReviewModal() {
     const submitButton = modal.querySelector('.btn-blue');
     const reviewText = modal.querySelector('.input');
     const closeButton = modal.querySelector('.close-modal');
+    const deleteButton = modal.querySelector('.btn-red');
+    const isPublicCheckbox = document.getElementById('is_public');
 
-    console.log('Modal elements:', { stars, submitButton, reviewText, closeButton });
+    //  режим редагування
+    if (isEdit) {
+        const currentStatus = await checkBookStatus(getBookId());
+        if (currentStatus.rating) {
+            selectedRating = currentStatus.rating;
+            stars.forEach((star, index) => {
+                star.src = index < selectedRating ? 'picture/star.png' : 'picture/star-gray.png';
+            });
+        }
+        if (currentStatus.review) {
+            reviewText.value = currentStatus.review;
+        }
+        if (currentStatus.is_public) {
+            isPublicCheckbox.checked = true;
+        }
+        if (submitButton) {
+            submitButton.textContent = 'Оновити відгук';
+        }
+        if (deleteButton) {
+            deleteButton.style.display = 'block';
+        }
+    } else {
+        if (deleteButton) {
+            deleteButton.style.display = 'none';
+        }
+        if (isPublicCheckbox) {
+            isPublicCheckbox.checked = false;
+        }
+    }
 
-    // Обробка кліків по зірках
     stars.forEach(star => {
         star.addEventListener('click', () => {
             const rating = parseInt(star.dataset.rating);
             selectedRating = rating;
-            
-            // Оновлюємо зображення зірок
             stars.forEach((s, index) => {
                 s.src = index < rating ? 'picture/star.png' : 'picture/star-gray.png';
             });
         });
-
-        // Ефект при наведенні
         star.addEventListener('mouseover', () => {
             const rating = parseInt(star.dataset.rating);
             stars.forEach((s, index) => {
@@ -951,7 +1006,6 @@ async function showReviewModal() {
         });
     });
 
-    // Обробка відправки форми
     if (submitButton) {
         submitButton.addEventListener('click', async () => {
             if (selectedRating === 0) {
@@ -969,12 +1023,13 @@ async function showReviewModal() {
                         bookId: getBookId(),
                         rating: selectedRating,
                         reviewText: reviewText.value.trim(),
-                        is_public: document.getElementById('is_public').checked
+                        is_public: document.getElementById('is_public').checked,
+                        is_edit: isEdit
                     })
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     showMessage(result.message, true);
                     closeReviewModal();
@@ -989,7 +1044,38 @@ async function showReviewModal() {
         });
     }
 
-    // Закриття модального вікна
+    // Обробка видалення відгуку
+    if (deleteButton) {
+        deleteButton.addEventListener('click', async () => {
+            if (confirm('Ви впевнені, що хочете видалити цей відгук?')) {
+                try {
+                    const response = await fetch('server/book-info/delete-review.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            bookId: getBookId()
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showMessage(result.message, true);
+                        closeReviewModal();
+                        location.reload();
+                    } else {
+                        showMessage("Помилка: " + result.message, false);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showMessage("Помилка при видаленні відгуку", false);
+                }
+            }
+        });
+    }
+
     if (closeButton) {
         closeButton.addEventListener('click', closeReviewModal);
     }
@@ -1003,14 +1089,21 @@ async function showReviewModal() {
 function closeReviewModal() {
     const modal = document.getElementById('modal-review');
     if (modal) {
-        // Спочатку видаляємо клас active для запуску анімації закриття
         modal.classList.remove('active');
-        
-        // Чекаємо завершення анімації перед видаленням
         setTimeout(() => {
             modal.style.display = 'none';
             modal.remove();
         }, 300);
     }
 }
+
+//  обробник для кнопки редагування відгуку
+document.addEventListener('DOMContentLoaded', () => {
+    const writeReviewBtn = document.getElementById('writeReviewBtn');
+    if (writeReviewBtn) {
+        writeReviewBtn.addEventListener('click', () => {
+            showReviewModal(true);
+        });
+    }
+});
 

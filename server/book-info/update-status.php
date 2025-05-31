@@ -1,7 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-
+date_default_timezone_set('Europe/Kiev');
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Користувач не авторизований']);
     exit();

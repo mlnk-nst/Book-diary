@@ -44,12 +44,12 @@
         <p><strong>Рік випуску:</strong> <span id="bookYear"></span></p>
         <p><strong>Кількість сторінок:</strong> <span id="bookPages"></span></p>
 
-        <div class="book-status" id="bookStatusContainer" style="display: none;">
+        <div class="book-status rtng" id="bookStatusContainer" style="display: none;">
         <strong>Статус:</strong>
         <span id="statusText"></span>
     </div>
         <div class="rating-section" id="ratingSection" style="display: none;">
-            <strong>Оцінка:</strong>
+            <strong>Оцінка:</strong> <span id="ratingText"></span>
             <div class="stars">
                 <img src="picture/star.png" alt="1 зірка" data-rating="1">
                 <img src="picture/star.png" alt="2 зірки" data-rating="2">
@@ -68,8 +68,8 @@
             </div>
 
         <div class="review-section" id="reviewSection" style="display: none;">
-              <h3>Ваш відгук:</h3>
-                <div id="userReviewContainer">
+              <h3>Ваш відгук</h3>
+                <div class ="review-my"id="userReviewContainer">
                 </div>
             <button id="writeReviewBtn" class="btn-blue">Редагувати відгук</button>
             <div id="reviewForm" style="display: none;">

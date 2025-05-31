@@ -1,71 +1,141 @@
 <?php
-session_start();
 header('Content-Type: application/json');
+session_start();
 
-include __DIR__ . '/../database.php';
-include __DIR__ . '/../xp/level_system.php';
-
-$userId = $_SESSION['user_id'] ?? null;
-$input = json_decode(file_get_contents('php://input'), true);
-
-if (!$userId) {
-    echo json_encode(['success' => false, 'message' => 'Користувач не авторизований']);
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Користувач не авторизований']);
     exit;
 }
 
-$bookId = $input['bookId'] ?? null;
-$rating = $input['rating'] ?? null;
-$reviewText = $input['reviewText'] ?? null;
-$isPublic = $input['is_public'] ?? false;
+$data = json_decode(file_get_contents('php://input'), true);
+$bookId = $data['bookId'] ?? null;
+$rating = $data['rating'] ?? null;
+$reviewText = $data['reviewText'] ?? '';
+$isPublic = $data['is_public'] ?? false;
+$isEdit = $data['is_edit'] ?? false;
 
 if (!$bookId || !$rating) {
-    echo json_encode(['success' => false, 'message' => 'Відсутні необхідні дані']);
+    http_response_code(400);
+    echo json_encode(['error' => 'Необхідні поля відсутні']);
     exit;
 }
+
+include __DIR__ . '/../database.php';
 
 try {
     $pdo->beginTransaction();
 
-    if (!empty(trim($reviewText))) {
-        $stmtReview = $pdo->prepare("INSERT INTO reviews (user_id, book_id, review_text, is_public, created_at) 
-            VALUES (?, ?, ?, ?, NOW())");
-        $stmtReview->execute([$userId, $bookId, $reviewText, $isPublic]);
-        $reviewId = $pdo->lastInsertId();
+    if ($isEdit) {
+        // Оновлення існуючого відгуку
+        $stmt = $pdo->prepare("
+            UPDATE reviews 
+            SET review_text = :review_text, 
+                is_public = :is_public 
+            WHERE book_id = :book_id 
+            AND user_id = :user_id
+        ");
 
-        $stmtProgress = $pdo->prepare("SELECT experience_points FROM user_progress WHERE user_id = ?");
-        $stmtProgress->execute([$userId]);
-        $progress = $stmtProgress->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute([
+            ':review_text' => $reviewText,
+            ':is_public' => $isPublic,
+            ':book_id' => $bookId,
+            ':user_id' => $_SESSION['user_id']
+        ]);
 
-        if (!$progress) {
-            $stmtInsert = $pdo->prepare("INSERT INTO user_progress (user_id, experience_points, level) VALUES (?, 15, 1)");
-            $stmtInsert->execute([$userId]);
-        } else {
-            $newExp = $progress['experience_points'] + 15;
-            $stmtUpdate = $pdo->prepare("UPDATE user_progress SET experience_points = ? WHERE user_id = ?");
-            $stmtUpdate->execute([$newExp, $userId]);
+        // Оновлюємо рейтинг в таблиці diary
+        $stmt = $pdo->prepare("
+            UPDATE diary 
+            SET rating = :rating
+            WHERE book_id = :book_id 
+            AND user_id = :user_id
+        ");
+
+        $stmt->execute([
+            ':rating' => $rating,
+            ':book_id' => $bookId,
+            ':user_id' => $_SESSION['user_id']
+        ]);
+
+        $message = 'Відгук успішно оновлено';
+    } else {
+        // Створення нового відгуку
+        $stmt = $pdo->prepare("
+            INSERT INTO reviews (book_id, user_id, review_text, is_public) 
+            VALUES (:book_id, :user_id, :review_text, :is_public)
+        ");
+
+        $stmt->execute([
+            ':book_id' => $bookId,
+            ':user_id' => $_SESSION['user_id'],
+            ':review_text' => $reviewText,
+            ':is_public' => $isPublic
+        ]);
+
+        $reviewsId = $pdo->lastInsertId();
+
+        // Оновлюємо reviews_id та рейтинг в таблиці diary
+        $stmt = $pdo->prepare("
+            UPDATE diary 
+            SET reviews_id = :reviews_id,
+                rating = :rating
+            WHERE book_id = :book_id 
+            AND user_id = :user_id
+        ");
+
+        $stmt->execute([
+            ':reviews_id' => $reviewsId,
+            ':rating' => $rating,
+            ':book_id' => $bookId,
+            ':user_id' => $_SESSION['user_id']
+        ]);
+
+        // Нараховуємо XP тільки за новий відгук
+        if (!empty($reviewText)) {
+            // Перевіряємо, чи вже є запис про нарахування XP за цей відгук
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) 
+                FROM user_xp_log 
+                WHERE user_id = :user_id 
+                AND action_type = 'review' 
+                AND action_reference_id = :book_id
+            ");
+            $stmt->execute([
+                ':user_id' => $_SESSION['user_id'],
+                ':book_id' => $bookId
+            ]);
+            
+            if ($stmt->fetchColumn() == 0) {
+                // Якщо запису немає, нараховуємо XP
+                $stmt = $pdo->prepare("
+                    UPDATE user_progress 
+                    SET experience_points = experience_points + 10 
+                    WHERE user_id = :user_id
+                ");
+                $stmt->execute([':user_id' => $_SESSION['user_id']]);
+
+                // Логуємо нарахування XP
+                $stmt = $pdo->prepare("
+                    INSERT INTO user_xp_log (user_id, action_type, action_reference_id, experience_points) 
+                    VALUES (:user_id, 'review', :book_id, 10)
+                ");
+                $stmt->execute([
+                    ':user_id' => $_SESSION['user_id'],
+                    ':book_id' => $bookId
+                ]);
+            }
         }
 
-        $stmtLog = $pdo->prepare("INSERT INTO user_xp_log (user_id, action_type, action_reference_id, experience_points) VALUES (?, ?, ?, ?)");
-        $stmtLog->execute([$userId, 'review', $bookId, 15]);
-
-        checkAndUpdateLevel($userId, $pdo);
-    } else {
-        $reviewId = null;
+        $message = 'Відгук успішно додано';
     }
 
-    $stmtDiary = $pdo->prepare("UPDATE diary SET reviews_id = ?, rating = ? WHERE user_id = ? AND book_id = ?");
-    $stmtDiary->execute([$reviewId, $rating, $userId, $bookId]);
-
     $pdo->commit();
-    echo json_encode([
-        'success' => true, 
-        'message' => !empty(trim($reviewText)) ? 
-            'Відгук успішно збережено та нараховано 15 балів!' : 
-            'Оцінку успішно збережено'
-    ]);
-} catch (Exception $e) {
+    echo json_encode(['success' => true, 'message' => $message]);
+
+} catch (PDOException $e) {
     $pdo->rollBack();
-    error_log('Error in submit-review.php: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Помилка при збереженні відгуку']);
+    http_response_code(500);
+    echo json_encode(['error' => 'Помилка бази даних: ' . $e->getMessage()]);
+    error_log('Помилка PDO: ' . $e->getMessage());
 }
 ?> 

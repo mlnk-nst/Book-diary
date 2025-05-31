@@ -19,12 +19,15 @@ include __DIR__ . '/../database.php';
 try {
     $stmt = $pdo->prepare("
         SELECT 
-            status, 
-            rating, 
-            DATE_FORMAT(read_data, '%d.%m.%Y') as read_date,
-            reviews_id
-        FROM diary 
-        WHERE user_id = :user_id AND book_id = :book_id
+            d.status, 
+            d.rating, 
+            DATE_FORMAT(d.read_data, '%d.%m.%Y') as read_date,
+            d.reviews_id,
+            r.review_text,
+            r.is_public
+        FROM diary d
+        LEFT JOIN reviews r ON d.reviews_id = r.reviews_id
+        WHERE d.user_id = :user_id AND d.book_id = :book_id
         LIMIT 1
     ");
     
@@ -37,17 +40,23 @@ try {
 
     if ($result) {
         echo json_encode([
+            'success' => true,
             'status' => $result['status'],
             'rating' => $result['rating'],
             'read_date' => $result['read_date'],
-            'reviews_id' => $result['reviews_id']
+            'reviews_id' => $result['reviews_id'],
+            'review' => $result['review_text'],
+            'is_public' => (bool)$result['is_public']
         ]);
     } else {
         echo json_encode([
+            'success' => true,
             'status' => null,
             'rating' => null,
             'read_date' => null,
-            'reviews_id' => null
+            'reviews_id' => null,
+            'review' => null,
+            'is_public' => false
         ]);
     }
 } catch (PDOException $e) {

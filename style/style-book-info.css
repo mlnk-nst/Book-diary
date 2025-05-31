@@ -204,6 +204,7 @@ body {
     font-size: 20px;
     padding: 10px 30px;
     border: none;
+    margin: 0;
 }
 
 .read-data {
@@ -212,12 +213,6 @@ body {
     font-weight: bold;
     margin: 5px;
 }
-
-
-
-
-
-
 
 .rating-container {
     display: flex;
@@ -270,4 +265,73 @@ body {
 .checkbox-label {
     margin-left: 10px;
 
+}
+
+.rating-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.stars {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.stars img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.review-section {
+    margin-top: 20px;
+}
+
+#userReviewContainer {
+    margin: 10px 0;
+}
+
+.review-content {
+    margin: 0;
+}
+
+.review-text {
+    margin: 0;
+    font-style: italic;
+}
+
+.rtng {
+    margin: 24px 0;
+}
+
+.review-my {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 20px;
+    border: 2px dashed #333;
+    display: table;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 480px) {
+    .button-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-blue,
+    .btn-red {
+        width: 100%;
+    }
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    align-items: center;
 }

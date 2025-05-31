@@ -24,7 +24,6 @@ if (!in_array($data->status, $validStatuses)) {
 
 $book_id = (int)$data->book_id;
 $status = $data->status;
-$read_data = date('Y-m-d H:i:s'); 
 
 $checkQuery = "SELECT COUNT(*) FROM diary WHERE user_id = ? AND book_id = ?";
 $checkStmt = $pdo->prepare($checkQuery);
@@ -36,9 +35,9 @@ if ($exists > 0) {
     exit();
 }
 
-$insertQuery = "INSERT INTO diary (user_id, book_id, status, read_data) VALUES (?, ?, ?, ?)";
+$insertQuery = "INSERT INTO diary (user_id, book_id, status) VALUES (?, ?, ?)";
 $insertStmt = $pdo->prepare($insertQuery);
-$insertStmt->execute([$user_id, $book_id, $status, $read_data]);
+$insertStmt->execute([$user_id, $book_id, $status]);
 if ($insertStmt->rowCount() > 0) {
     echo json_encode(['success' => true]);
 } else {
